@@ -1,8 +1,14 @@
-# Sample GitLab Project
+# DEMO T5 GODOT
 
-This sample project shows how a project in GitLab looks for demonstration purposes. It contains issues, merge requests and Markdown files in many branches,
-named and filled with lorem ipsum.
+* Stagiaire :
+	* Benoit Collot
 
-You can look around to get an idea how to structure your project and, when done, you can safely delete this project.
+* Encadrants :
+	* Stéphanie Prévost
+	* Hervé Deleau 
 
-[Learn more about creating GitLab projects.](https://docs.gitlab.com/ee/gitlab-basics/create-project.html)
+
+Création d'une application de démonstration pour le Tilt Five avec GODOT
+
+[Attention :](#)
+Pensez à créer un fichier .gitignore gérant correctement les projets Godot afin de ne pas surcharger le dépôt inutilement.
