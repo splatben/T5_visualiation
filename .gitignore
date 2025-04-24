@@ -3,3 +3,6 @@
 /android/
 #fichier volumineux 
 *.obj*
+*.glb*
+*.mtl*
+material/Jovin/texture*
