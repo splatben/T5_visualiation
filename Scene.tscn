@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://bllf2pnpcc8bl"]
+
+[ext_resource type="PackedScene" uid="uid://dslrsg4cn04o4" path="res://addons/tiltfive_tools/staging/scene.tscn" id="1_t6lng"]
+[ext_resource type="PackedScene" uid="uid://cfm2o21x2mtns" path="res://material/Ganoderma_carnosum/Champignon.tscn" id="2_4cvuw"]
+
+[sub_resource type="Environment" id="Environment_4cvuw"]
+ambient_light_source = 3
+ambient_light_energy = 1.9
+
+[node name="Scene" instance=ExtResource("1_t6lng")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." index="0"]
+transform = Transform3D(-0.471166, 0.67766, -0.564605, 5.82084e-08, 0.64011, 0.768284, 0.882045, 0.361989, -0.301598, -2.29131, 2.59404, -1.83558)
+light_angular_distance = 1.0
+shadow_enabled = true
+directional_shadow_max_distance = 105.0
+
+[node name="Champignon" parent="." index="1" instance=ExtResource("2_4cvuw")]
+transform = Transform3D(1, 0, 0, 0, 0.999991, -0.00418878, 0, 0.00418878, 0.999991, 0, 0, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." index="2"]
+environment = SubResource("Environment_4cvuw")
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="." index="3"]
+transform = Transform3D(0.633068, -0.725627, 0.269612, 0.460784, 0.633107, 0.621975, -0.622015, -0.269519, 0.735158, 3.12181, 2.49407, 3.95674)
+shadow_enabled = true
+directional_shadow_max_distance = 105.0

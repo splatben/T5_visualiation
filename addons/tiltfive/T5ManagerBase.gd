@@ -62,4 +62,3 @@ func release_xr_rig(xr_rig : T5XRRig) -> void:
 func set_gameboard_type(xr_rig : T5XRRig, gameboard_type : T5Def.GameboardType) -> void:
 	pass
 	
-
