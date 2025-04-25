@@ -163,3 +163,7 @@ func _on_xr_rig_will_be_removed(rig : T5XRRig) -> void:
 ## Load the requested scene
 static func load_scene(p_scene_path : String, user_data : Variant = null) -> void:
 	instance.do_load_scene(p_scene_path, user_data)
+
+
+func _on_window_close_requested() -> void:
+	pass # Replace with function body.
