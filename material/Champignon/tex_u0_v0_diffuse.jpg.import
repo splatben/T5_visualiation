@@ -2,13 +2,12 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://yxvewt582fir"
+uid="uid://bbhe64wtdrqld"
 path.s3tc="res://.godot/imported/tex_u0_v0_diffuse.jpg-f6996dfce3a8340a1f6ac91d47891fee.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
-generator_parameters={}
 
 [deps]
 

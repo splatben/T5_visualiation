@@ -58,9 +58,11 @@ func _on_button_pressed(p_name : String) -> void:
 	else :
 		match p_name: 
 			boutton_zoom:
-				_origin.gameboard_scale = _origin.gameboard_scale / 1.15 # en baisant la taille des lunettes le reste devient plus grand
+				_origin.gameboard_scale = _origin.gameboard_scale / 1.15 # en baisant la 
+				# taille des lunettes le reste devient plus grand
 			boutton_dezoom:
-				_origin.gameboard_scale = _origin.gameboard_scale * 1.15  # en augmentant la taille des lunettes le reste devient plus petit
+				_origin.gameboard_scale = _origin.gameboard_scale * 1.15  # en augmentant 
+				# taille des lunettes le reste devient plus petit
 			boutton_reinitialisation:	
 				if (last_node != null):
 					last_node.set_scale(Vector3(1,1,1))
