@@ -5,4 +5,8 @@
 *.obj*
 *.glb*
 *.mtl*
-material/Jovin/texture*
+*.gltf*
+#repertoire spécifique
+Champignon/
+jovin/
+nuagePoint

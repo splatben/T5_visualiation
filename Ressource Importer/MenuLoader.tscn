@@ -1,0 +1,132 @@
+[gd_scene load_steps=4 format=3 uid="uid://bjw2g401n2uwp"]
+
+[ext_resource type="Texture2D" uid="uid://pbvseyh32lcr" path="res://material/border.png" id="1_isicr"]
+[ext_resource type="Script" uid="uid://q3naaokeuot" path="res://Ressource Importer/button_file_dialog.gd" id="2_5cvxt"]
+[ext_resource type="Script" uid="uid://drn1obbtwyoqt" path="res://Ressource Importer/Loader.gd" id="2_hfu3d"]
+
+[node name="MenuLoader" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_right = -553.0
+offset_bottom = -348.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="NinePatchRect" type="NinePatchRect" parent="."]
+z_index = -3
+y_sort_enabled = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_isicr")
+region_rect = Rect2(-0.0909958, -0.093132, 63.888, 64.1994)
+patch_margin_left = 10
+patch_margin_top = 10
+patch_margin_right = 10
+patch_margin_bottom = 10
+
+[node name="RichTextLabel4" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 31.0
+offset_top = 139.0
+offset_right = 267.0
+offset_bottom = 163.0
+text = "Format d'image du gltf ou glb :"
+fit_content = true
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 201.0
+offset_top = 21.0
+offset_right = 461.0
+offset_bottom = 45.0
+text = "Elément dans la scène :"
+fit_content = true
+
+[node name="RichTextLabel3" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 58.0
+offset_top = 55.0
+offset_right = 243.0
+offset_bottom = 79.0
+text = "Pouvant être ajouté :"
+fit_content = true
+
+[node name="RichTextLabel5" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 350.0
+offset_top = 58.0
+offset_right = 540.0
+offset_bottom = 82.0
+text = "Pouvant être supprimé :"
+fit_content = true
+
+[node name="ButtonListForDelete" type="OptionButton" parent="."]
+layout_mode = 0
+offset_left = 332.0
+offset_top = 93.0
+offset_right = 556.0
+offset_bottom = 124.0
+toggle_mode = false
+allow_reselect = true
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 90.0
+offset_right = 212.0
+offset_bottom = 126.0
+text = "Charger model 3D"
+script = ExtResource("2_5cvxt")
+
+[node name="FileDialog" type="FileDialog" parent="Button"]
+title = "Open a File"
+initial_position = 1
+transient = false
+exclusive = false
+always_on_top = true
+popup_window = true
+ok_button_text = "Open"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.gltf", "*.glb", "*.tscn")
+show_hidden_files = true
+use_native_dialog = true
+script = ExtResource("2_hfu3d")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 343.0
+offset_top = 146.0
+offset_right = 486.0
+offset_bottom = 232.0
+
+[node name="OptionButton3" type="OptionButton" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 174.0
+offset_right = 208.0
+offset_bottom = 205.0
+toggle_mode = false
+selected = 0
+item_count = 5
+popup/item_0/text = "None"
+popup/item_0/id = 0
+popup/item_1/text = "PNG"
+popup/item_1/id = 1
+popup/item_2/text = "JPEG"
+popup/item_2/id = 2
+popup/item_3/text = "Lossless WebP"
+popup/item_3/id = 3
+popup/item_4/text = "Lossy WebP"
+popup/item_4/id = 4
+
+[connection signal="pressed" from="Button" to="Button" method="_on_button_pressed"]
+[connection signal="canceled" from="Button/FileDialog" to="Button" method="_on_file_dialog_canceled"]
+[connection signal="item_selected" from="OptionButton3" to="Button/FileDialog" method="_on_format_selected"]

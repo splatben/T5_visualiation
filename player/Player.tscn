@@ -4,19 +4,22 @@
 [ext_resource type="PackedScene" uid="uid://b1cd3jc00rhal" path="res://addons/tiltfive/assets/T5GlassesModel.tscn" id="2_5yrwf"]
 [ext_resource type="PackedScene" uid="uid://fipea8dbocg4" path="res://addons/tiltfive/assets/T5WandModel.tscn" id="3_h58on"]
 [ext_resource type="PackedScene" uid="uid://bfxa4y4qa6l67" path="res://addons/tiltfive_tools/functions/pointer.tscn" id="5_x8kxw"]
-[ext_resource type="Script" uid="uid://br06ttylhflbt" path="res://player/move.gd" id="6_aqcbf"]
+[ext_resource type="Script" uid="uid://br06ttylhflbt" path="res://player/Player_control.gd" id="6_aqcbf"]
 
 [node name="Player" instance=ExtResource("1_83hs8")]
+visible_layers = 1023
 
 [node name="T5-glasses" parent="Origin/Camera" index="0" instance=ExtResource("2_5yrwf")]
 
 [node name="T5-wand" parent="Origin/Wand_1" index="0" instance=ExtResource("3_h58on")]
 
 [node name="Pointer" parent="Origin/Wand_1" index="1" instance=ExtResource("5_x8kxw")]
+length = 0.5
+angle = 12.5
 visible_layers = 1
 collision_mask = 1048577
 valid_mask = 1048577
 collide_with_areas = true
 
-[node name="Node" type="Node" parent="Origin/Wand_1/Pointer" index="3"]
+[node name="Control" type="Node" parent="Origin/Wand_1/Pointer" index="3"]
 script = ExtResource("6_aqcbf")

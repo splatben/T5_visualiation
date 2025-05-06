@@ -23,3 +23,5 @@ signal: `nom_signal(infoEnvoyé : typeInfo)`
   
 Pour utiliser de la 2D utiliser le script `viewport2D3D.gd` dans l'addon tiltfiveTool dans un node 3d  
 Pour pouvoir select un node avec le pointeur -> mettre boite de colision et mettre bon layer   
+
+A faire: ajouter une liste des commentaire pour pouvoir selectionner sur lequelles ecrire 

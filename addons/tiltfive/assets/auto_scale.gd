@@ -3,7 +3,7 @@ extends Node3D
 ## by the T5Origin3D gameboard_scale
 
 var origin : T5Origin3D
-var gameboard_scale : float = 1.0
+var gameboard_scale : float = 1
 
 func _find_origin():
 	var parent = get_parent()

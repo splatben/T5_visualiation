@@ -343,7 +343,6 @@ func _update_target() -> void:
 	_target_mesh.mesh.height = target_radius * 2.0
 	_target_material.albedo_color = target_color
 
-
 func _update_collision():
 	# Get the player-specific layer
 	var player_layer := _player.get_player_physics_layer()

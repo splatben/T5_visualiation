@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3 uid="uid://bllf2pnpcc8bl"]
+
+[ext_resource type="PackedScene" uid="uid://dslrsg4cn04o4" path="res://addons/tiltfive_tools/staging/scene.tscn" id="1_eojn1"]
+[ext_resource type="Script" uid="uid://dsufi0866jvdg" path="res://Ressource Importer/2nd_window.gd" id="2_wji7x"]
+[ext_resource type="PackedScene" uid="uid://bjw2g401n2uwp" path="res://Ressource Importer/MenuLoader.tscn" id="3_r0k8h"]
+[ext_resource type="Script" uid="uid://ca4aib3e6ic4l" path="res://SceneT5/SceneT5.gd" id="4_x3bmr"]
+
+[sub_resource type="Environment" id="Environment_4cvuw"]
+ambient_light_source = 3
+ambient_light_energy = 1.9
+
+[node name="Scene" instance=ExtResource("1_eojn1")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." index="0"]
+transform = Transform3D(-0.466382, 0.579791, -0.66808, -0.0669739, 0.729936, 0.680226, 0.882045, 0.361989, -0.301598, -4.6099, 2.59404, -1.83558)
+light_angular_distance = 1.0
+shadow_enabled = true
+directional_shadow_max_distance = 105.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." index="1"]
+environment = SubResource("Environment_4cvuw")
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="." index="2"]
+transform = Transform3D(0.633068, -0.725627, 0.269612, 0.460784, 0.633107, 0.621975, -0.622015, -0.269519, 0.735158, 3.12181, 2.49407, 3.95674)
+shadow_enabled = true
+directional_shadow_max_distance = 105.0
+
+[node name="Controller" type="Node3D" parent="." index="3"]
+script = ExtResource("4_x3bmr")
+
+[node name="Window" type="Window" parent="." index="4"]
+auto_translate_mode = 1
+title = "Menu"
+initial_position = 1
+size = Vector2i(600, 300)
+script = ExtResource("2_wji7x")
+
+[node name="MenuLoader" parent="Window" index="0" instance=ExtResource("3_r0k8h")]
+offset_right = 0.0
+offset_bottom = 0.0
