@@ -30,43 +30,22 @@ func _ready() -> void:
 	_controller.button_pressed.connect(_on_button_pressed)
 
 	
-func on_pointer_move(_target : Node3D, from_pos : Vector3, to_pos : Vector3) -> void :
-	if _pointer._locked_target != null:
+func on_pointer_move(target : Node3D, from_pos : Vector3, to_pos : Vector3) -> void :
+	if _pointer._locked_target != null && from_pos != to_pos:
 		var origin_ray = _pointer._raycast.global_transform.origin
-		var distance_obj_prct = ((origin_ray - to_pos).length())/0.5*100
-		print(distance_obj_prct)
-		if 20 < distance_obj_prct and distance_obj_prct < 80:
-			pass
-		elif distance_obj_prct > 80:
+		var distance_obj_prct = ((origin_ray - to_pos).length())/_pointer.length*100
+		if 10 < distance_obj_prct and distance_obj_prct < 90:
+			_pointer._locked_target.move_and_collide(to_pos-from_pos)
+		elif distance_obj_prct > 90:
 			#rapprocher
-			if to_pos.x < origin_ray.x:
-				to_pos.x += 0.001
-			elif to_pos.x > origin_ray.x :  #si egal on fait rien
-				to_pos.x -= 0.001
-			if to_pos.y < origin_ray.y:
-				to_pos.y += 0.001
-			elif to_pos.y > origin_ray.y : #si egal on fait rien
-				to_pos.y -= 0.001
-			if to_pos.z < origin_ray.z:
-				to_pos.z += 0.001
-			elif to_pos.z > origin_ray.z :  #si egal on fait rien
-				to_pos.z -= 0.001
-		elif distance_obj_prct < 20:
+			_pointer._locked_target.move_and_collide(to_pos-from_pos + (origin_ray/500))
+		elif distance_obj_prct < 10:
 			#eloigner
-			if to_pos.x > origin_ray.x:
-				to_pos.x += 0.001
-			elif to_pos.x < origin_ray.x :  #si egal on fait rien
-				to_pos.x -= 0.001
-			if to_pos.y > origin_ray.y:
-				to_pos.y += 0.001
-			elif to_pos.y < origin_ray.y : #si egal on fait rien
-				to_pos.y -= 0.001
-			if to_pos.z > origin_ray.z:
-				to_pos.z += 0.001
-			elif to_pos.z < origin_ray.z :  #si egal on fait rien
-				to_pos.z -= 0.001
-		_pointer._locked_target.move_and_collide(to_pos-from_pos) #effectue une translation
+			_pointer._locked_target.move_and_collide(to_pos-from_pos - (origin_ray/500)) #effectue une translation
 	_pos = to_pos
+	_pointer._last_at = _pos
+	_pointer._visible_move(_pos)
+	T5ToolsPointerEvent.moved(_pointer._player, _pointer, target, to_pos, from_pos)
 
 func _on_stick_move(_name: String, value: Vector2) -> void :
 	if _pointer._locked_target != null and ((value.x > 0.1 or value.y > 0.1) or (value.x < -0.1 or value.y < -0.1)):
@@ -93,9 +72,15 @@ func _on_button_pressed(p_name : String) -> void:
 			boutton_zoom:
 				_origin.gameboard_scale = _origin.gameboard_scale / 1.15 # en baisant la 
 				# taille des lunettes le reste devient plus grand
+				_pointer.length = _pointer.length / 1.15
+				_pointer.arc_radius = _pointer.arc_radius / 1.15
+				_pointer.target_radius = _pointer.target_radius / 1.15
 			boutton_dezoom:
 				_origin.gameboard_scale = _origin.gameboard_scale * 1.15  # en augmentant 
 				# taille des lunettes le reste devient plus petit
+				_pointer.length = _pointer.length * 1.15
+				_pointer.arc_radius = _pointer.arc_radius * 1.15
+				_pointer.target_radius = _pointer.target_radius * 1.15
 			boutton_reinitialisation:	
 				if (last_node != null):
 					last_node.set_scale(Vector3(1,1,1))

@@ -25,7 +25,12 @@ func _ready():
 func _on_load(node:Node):
 	print_text.text="Import Successfull"
 	add_static_body(node);
-	add_child(node);
+	if node.get_parent() :
+		add_child(node.get_parent(),true);
+		print(node.get_parent().get_tree_string_pretty())
+	else :
+		print(node.get_tree_string_pretty())
+		add_child(node,true)
 	maj_button_Delete()
 
 func _print_error():
@@ -62,34 +67,26 @@ func _on_timer_timeout() -> void:
 
 func add_static_body(node):
 	if node != null:
+		print(node.get_tree_string_pretty())
 		if node is MeshInstance3D:
-			# Créer un corps statique
 			var body = StaticBody3D.new()
-			# Générer une forme de collision convexe à partir du mesh
-			var shape = CollisionShape3D.new()
-			var collision_shape = node.mesh.create_convex_shape(true, true)
-			shape.shape = collision_shape
-		
-			shape.set_debug_color(Color(255,255,255))
-			shape.set_enable_debug_fill(true)
-			var mesh3D = MeshInstance3D.new()
-			# Ajouter la forme au corps statique créé
-			body.add_child(shape, true)
-			# Ajouter le corps statique comme enfant du nœud
+			var colision = CollisionShape3D.new()
+			colision.shape = node.mesh.create_convex_shape(true)
+			print(colision.shape.get_points())
+			var parent:Node3D= null
 			if(node.get_parent() != null):
-				var parent = node.get_parent()
+				parent = node.get_parent()
 				parent.remove_child(node)
 				node.owner = null
 				parent.add_child(body,true)
-			else:
-				var parent = Node3D.new()
-				parent.add_child(body,true)
-			body.add_child(node, true)
-			# Configurer les couches et les masques de collision
+			body.add_child(node,true)
+			body.add_child(colision,true)
 			body.set_collision_layer_value(1, true)
 			body.set_collision_mask_value(1, true)
-			# Définir la propriété owner du corps et de la forme sur le propriétaire du nœud
-			shape.owner = body.owner
-		# Continuer l'itération
+			return ;
+		# Continuer l'itération sir pas de mesh instance 3D
 		for child in node.get_children():
+			if child is StaticBody3D:
+				break
+				return;
 			add_static_body(child)

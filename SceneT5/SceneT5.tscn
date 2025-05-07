@@ -10,6 +10,7 @@ ambient_light_source = 3
 ambient_light_energy = 1.9
 
 [node name="Scene" instance=ExtResource("1_eojn1")]
+spawn_padding = 3.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." index="0"]
 transform = Transform3D(-0.466382, 0.579791, -0.66808, -0.0669739, 0.729936, 0.680226, 0.882045, 0.361989, -0.301598, -4.6099, 2.59404, -1.83558)

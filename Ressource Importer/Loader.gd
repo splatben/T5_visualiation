@@ -30,6 +30,9 @@ func _on_file_selected(file:String):
 
 func _load(file:String):
 	var nodePacked = load(file) #charger une scène qui n'est pas deja dans la scène 
+	if nodePacked == null:
+		_emit_load_failed.call_deferred()
+		return;
 	var node = nodePacked.instantiate()
 	_emit_load.call_deferred(node)
 	
@@ -50,14 +53,51 @@ func _load_gltf(file:String):
 	else:
 		_emit_load_failed.call_deferred()
 
-func _load_xyz(file:String):
-	pass
+func _load_xyz(filePath:String):
+	var points = PackedVector3Array()
+	var file = FileAccess.open(filePath, FileAccess.READ)
+	var ligne : String = file.get_line()
+	if(ligne == ""):
+		_emit_load_failed.call_deferred()
+		return;
+	while ligne != "":
+		if ligne[0] != "#" :
+			var pos = Vector3(0,0,0)
+			var array = ligne.split(" ",false)
+			pos.x = array[0].to_float()
+			pos.y = array[1].to_float()
+			pos.z = array[2].to_float()
+			points.append(pos)
+		ligne = file.get_line()
+	file.close()
+	# Create the ArrayMesh.
+	var arr_mesh = ArrayMesh.new()
+	var arrays = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = points
+	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_POINTS, arrays)
+	
+	#Material for array mesh (1 surface)
+	var mat = ORMMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.use_point_size = true
+	mat.point_size = 3
+	#mat.albedo_color = Color(255,255,255) fonctionne pas 
+	#mat.set_flag(BaseMaterial3D.FLAG_ALBEDO_FROM_VERTEX_COLOR,true)
+	arr_mesh.surface_set_material(0,mat)
+	
+	var mesh_instance = MeshInstance3D.new()
+	mesh_instance.mesh = arr_mesh
+	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	
+	#fini
+	_emit_load.call_deferred(mesh_instance)
+	
 
-func _emit_load(gltf) -> void:
-	is_loaded.emit(gltf)
+func _emit_load(node) -> void:
+	is_loaded.emit(node)
 	
 func _emit_load_failed() -> void:
-	print("echec")
 	load_failed.emit()
 	
 func _exit_tree():
