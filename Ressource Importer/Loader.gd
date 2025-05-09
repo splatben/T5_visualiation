@@ -34,6 +34,7 @@ func _load(file:String):
 		_emit_load_failed.call_deferred()
 		return;
 	var node = nodePacked.instantiate()
+	add_static_body(node)
 	_emit_load.call_deferred(node)
 	
 func _load_gltf(file:String):
@@ -49,6 +50,7 @@ func _load_gltf(file:String):
 	
 	if err == OK:
 		gltf = gltf_doc.generate_scene(gltf_state)
+		add_static_body(gltf)
 		_emit_load.call_deferred(gltf)
 	else:
 		_emit_load_failed.call_deferred()
@@ -82,7 +84,7 @@ func _load_xyz(filePath:String):
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.use_point_size = true
 	mat.point_size = 3
-	#mat.albedo_color = Color(255,255,255) fonctionne pas 
+	#mat.albedo_color = Color(255,255,255)# fonctionne pas 
 	#mat.set_flag(BaseMaterial3D.FLAG_ALBEDO_FROM_VERTEX_COLOR,true)
 	arr_mesh.surface_set_material(0,mat)
 	
@@ -91,6 +93,7 @@ func _load_xyz(filePath:String):
 	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	
 	#fini
+	add_static_body(mesh_instance)
 	_emit_load.call_deferred(mesh_instance)
 	
 
@@ -108,3 +111,48 @@ func _on_format_selected(index: int) -> void:
 	mutex.lock()
 	format = index
 	mutex.unlock()
+
+func get_point_middle(arr_mesh : Mesh) -> Vector3 : 
+	var points = []
+	for surf in arr_mesh.get_surface_count():
+		points.append_array(arr_mesh.surface_get_arrays(surf)[0])
+	var pos_middle = Vector3(0,0,0)
+	for point in points : 
+		pos_middle += point
+	pos_middle = pos_middle / len(points)
+	return pos_middle
+
+func add_static_body(node):
+	if node != null:
+		print(node.get_tree_string_pretty())
+		if node is MeshInstance3D:
+			
+			node.position = Vector3(0,0,0)
+			
+			var body = StaticBody3D.new()
+			var colision = CollisionShape3D.new()
+			colision.shape = node.mesh.create_convex_shape(true) #cree colision
+			
+			var parent:Node3D= null
+			
+			if(node.get_parent() != null):# modifier le parent pour mettre le body et non le mesh en enfant
+				parent = node.get_parent()
+				parent.remove_child(node)
+				node.owner = null
+				parent.add_child(body,true)
+				
+			node.translate(-get_point_middle(node.mesh)) # recentrer
+			colision.translate(-get_point_middle(node.mesh))# avec la boite de colision c'est mieux
+				
+			body.add_child(node,true)
+			body.add_child(colision,true)
+			body.set_collision_layer_value(1, true)
+			body.set_collision_mask_value(1, true)
+			return ;
+			
+		# Continuer l'itération seulement si pas de mesh instance 3D
+		for child in node.get_children():
+			if child is StaticBody3D:
+				break
+				return;
+			add_static_body(child)

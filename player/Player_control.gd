@@ -36,16 +36,16 @@ func on_pointer_move(target : Node3D, from_pos : Vector3, to_pos : Vector3) -> v
 		var distance_obj_prct = ((origin_ray - to_pos).length())/_pointer.length*100
 		if 10 < distance_obj_prct and distance_obj_prct < 90:
 			_pointer._locked_target.move_and_collide(to_pos-from_pos)
+			_pos = to_pos
 		elif distance_obj_prct > 90:
 			#rapprocher
 			_pointer._locked_target.move_and_collide(to_pos-from_pos + (origin_ray/500))
+			_pos = to_pos + (origin_ray/500)
 		elif distance_obj_prct < 10:
 			#eloigner
 			_pointer._locked_target.move_and_collide(to_pos-from_pos - (origin_ray/500)) #effectue une translation
-	_pos = to_pos
+			_pos = to_pos - (origin_ray/500)
 	_pointer._last_at = _pos
-	_pointer._visible_move(_pos)
-	T5ToolsPointerEvent.moved(_pointer._player, _pointer, target, to_pos, from_pos)
 
 func _on_stick_move(_name: String, value: Vector2) -> void :
 	if _pointer._locked_target != null and ((value.x > 0.1 or value.y > 0.1) or (value.x < -0.1 or value.y < -0.1)):

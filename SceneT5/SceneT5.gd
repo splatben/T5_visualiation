@@ -24,13 +24,7 @@ func _ready():
 
 func _on_load(node:Node):
 	print_text.text="Import Successfull"
-	add_static_body(node);
-	if node.get_parent() :
-		add_child(node.get_parent(),true);
-		print(node.get_parent().get_tree_string_pretty())
-	else :
-		print(node.get_tree_string_pretty())
-		add_child(node,true)
+	add_child(node,true)
 	maj_button_Delete()
 
 func _print_error():
@@ -50,11 +44,10 @@ func maj_button_Delete() -> void:
 
 func _on_new_comment(pos:Vector3):
 	var node = bulle_chat.instantiate()
-	#var node = MeshInstance3D.new().mesh.generate_triangle_mesh()
-	add_child(node)
+	add_child(node,true)
 	node.owner = self
 	node.set_global_position(pos)
-	print(pos)
+	maj_button_Delete()
 
 func _on_timer_timeout() -> void:
 	if get_node("/root/Main/TiltFiveGlasses/Player/Origin/Wand_1/Pointer/Control") == null:
@@ -64,29 +57,3 @@ func _on_timer_timeout() -> void:
 		get_node("/root/Main/TiltFiveGlasses/Player/Origin/Wand_1/Pointer/Control").new_comment.connect(_on_new_comment)
 		get_parent().remove_child(timer)# removes from scene
 		timer.queue_free()#delete
-
-func add_static_body(node):
-	if node != null:
-		print(node.get_tree_string_pretty())
-		if node is MeshInstance3D:
-			var body = StaticBody3D.new()
-			var colision = CollisionShape3D.new()
-			colision.shape = node.mesh.create_convex_shape(true)
-			print(colision.shape.get_points())
-			var parent:Node3D= null
-			if(node.get_parent() != null):
-				parent = node.get_parent()
-				parent.remove_child(node)
-				node.owner = null
-				parent.add_child(body,true)
-			body.add_child(node,true)
-			body.add_child(colision,true)
-			body.set_collision_layer_value(1, true)
-			body.set_collision_mask_value(1, true)
-			return ;
-		# Continuer l'itération sir pas de mesh instance 3D
-		for child in node.get_children():
-			if child is StaticBody3D:
-				break
-				return;
-			add_static_body(child)

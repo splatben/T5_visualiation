@@ -27,4 +27,6 @@ Manipulation :
 	Quand aucun objet est selectionner :  
 		`a` pour dezoomer  
 		`y` pour zoomer  
-		`1` pour tout reinitialiser sur le dernier objet selectionner  
+		`1` pour tout reinitialiser sur le dernier objet selectionner   
+		  
+Charger des objet `.glb`, `.xyz`, `.gltf`, `.tscn` -> attention bug de colision possible sur les .tscn 
