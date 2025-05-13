@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=3 uid="uid://bntjdr31qysor"]
+
+[ext_resource type="Script" uid="uid://bhga2nanil5mg" path="res://material/Annotation/Annotation.gd" id="1_tw16d"]
+[ext_resource type="PackedScene" uid="uid://dk2u5l5xubk1r" path="res://material/Annotation/pointeur_bulle.glb" id="2_kmk67"]
+[ext_resource type="PackedScene" uid="uid://guqb0bu7b52v" path="res://material/Annotation/bulle_dialog.glb" id="3_htdbl"]
+[ext_resource type="PackedScene" uid="uid://0l6uvyibyfq7" path="res://addons/tiltfive_tools/objects/viewport/viewport_2d_in_3d.tscn" id="4_8tqye"]
+[ext_resource type="PackedScene" uid="uid://bm1ags6dq1sv2" path="res://material/Annotation/texte.tscn" id="5_bbbxp"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_4k2ue"]
+size = Vector3(0.121769, 0.798005, 2.06491)
+
+[node name="annotation" type="Node3D" groups=["Annotation"]]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+script = ExtResource("1_tw16d")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(0.999968, 0, 0.00795862, 0, 1, 0, -0.00795862, 0, 0.999968, -0.0115237, 0.742964, 1.28165)
+shape = SubResource("BoxShape3D_4k2ue")
+
+[node name="pointeur_bulle" parent="StaticBody3D" instance=ExtResource("2_kmk67")]
+transform = Transform3D(-2.62268e-08, -0.2, 0, -2.62268e-08, 3.82137e-16, -0.600001, 0.6, -8.74228e-09, -2.62269e-08, 0.0137701, 0.542869, 0.0412544)
+
+[node name="bulle_dialog" parent="StaticBody3D" instance=ExtResource("3_htdbl")]
+transform = Transform3D(0.2, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -0.0164042, 0.692115, 1.0221)
+
+[node name="Viewport2Din3D" parent="StaticBody3D" instance=ExtResource("4_8tqye")]
+transform = Transform3D(-4.37114e-08, -0.00174533, 0.999999, 0, 0.999998, 0.00174533, -1, 7.62907e-11, -4.37113e-08, 0.0216805, 0.730271, 1.29212)
+screen_size = Vector2(1.7, 0.45)
+collision_layer = 1
+scene = ExtResource("5_bbbxp")
+viewport_size = Vector2(600, 200)
+
+[node name="Viewport2Din3D2" parent="StaticBody3D" instance=ExtResource("4_8tqye")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.0412729, 0.728289, 1.29457)
+screen_size = Vector2(1.7, 0.45)
+collision_layer = 1
+scene = ExtResource("5_bbbxp")
+viewport_size = Vector2(600, 200)
+update_mode = 2

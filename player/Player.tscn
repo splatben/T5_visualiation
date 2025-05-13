@@ -14,7 +14,9 @@ visible_layers = 1023
 [node name="T5-wand" parent="Origin/Wand_1" index="0" instance=ExtResource("3_h58on")]
 
 [node name="Pointer" parent="Origin/Wand_1" index="1" instance=ExtResource("5_x8kxw")]
+angle = 0.0
 visible_layers = 1
+bezier_strength = 0.1
 collision_mask = 1048577
 valid_mask = 1048577
 collide_with_areas = true

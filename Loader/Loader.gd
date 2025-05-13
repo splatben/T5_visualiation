@@ -10,6 +10,7 @@ var format := 0
 
 func _ready():
 	self.file_selected.connect(_on_file_selected)
+	get_node('../../ListFormat').item_selected.connect(_on_format_selected)
 
 func _on_file_selected(file:String):
 	if(_thread):
@@ -46,12 +47,15 @@ func _load_gltf(file:String):
 	gltf_doc.image_format = formats[format]
 	mutex.unlock()
 	err = gltf_doc.append_from_file(file, gltf_state)
-	var gltf:Node = null
+	var gltf:Node3D = null
 	
 	if err == OK:
 		gltf = gltf_doc.generate_scene(gltf_state)
 		add_static_body(gltf)
-		_emit_load.call_deferred(gltf)
+		if(gltf is MeshInstance3D):
+			_emit_load.call_deferred(gltf.get_parent())
+		else:
+			_emit_load.call_deferred(gltf)
 	else:
 		_emit_load_failed.call_deferred()
 
@@ -94,7 +98,7 @@ func _load_xyz(filePath:String):
 	
 	#fini
 	add_static_body(mesh_instance)
-	_emit_load.call_deferred(mesh_instance)
+	_emit_load.call_deferred(mesh_instance.get_parent())
 	
 
 func _emit_load(node) -> void:
@@ -124,7 +128,6 @@ func get_point_middle(arr_mesh : Mesh) -> Vector3 :
 
 func add_static_body(node):
 	if node != null:
-		print(node.get_tree_string_pretty())
 		if node is MeshInstance3D:
 			
 			node.position = Vector3(0,0,0)
@@ -141,8 +144,9 @@ func add_static_body(node):
 				node.owner = null
 				parent.add_child(body,true)
 				
-			node.translate(-get_point_middle(node.mesh)) # recentrer
-			colision.translate(-get_point_middle(node.mesh))# avec la boite de colision c'est mieux
+			var coord = -get_point_middle(node.mesh)
+			node.translate(coord) # recentrer
+			colision.translate(coord)# avec la boite de colision c'est mieux
 				
 			body.add_child(node,true)
 			body.add_child(colision,true)
@@ -152,7 +156,7 @@ func add_static_body(node):
 			
 		# Continuer l'itération seulement si pas de mesh instance 3D
 		for child in node.get_children():
-			if child is StaticBody3D:
+			if child is PhysicsBody3D:
 				break
 				return;
 			add_static_body(child)

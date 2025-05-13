@@ -32,6 +32,10 @@ project/assembly_name="Nouveau projet de jeu"
 
 enabled=PackedStringArray("res://addons/tiltfive/plugin.cfg", "res://addons/tiltfive_tools/plugin.cfg")
 
+[global_group]
+
+Annotation="Les Annotations"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

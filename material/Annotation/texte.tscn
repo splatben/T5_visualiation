@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://bm1ags6dq1sv2"]
+
+[sub_resource type="Theme" id="Theme_b7iom"]
+default_font_size = 40
+
+[node name="Anotation" type="RichTextLabel"]
+custom_minimum_size = Vector2(600, 200)
+offset_right = 600.0
+offset_bottom = 200.0
+theme = SubResource("Theme_b7iom")
+bbcode_enabled = true
+text = "[color=red]Hello [/color] [b]world [/b][i]! [/i]"
+fit_content = true
+scroll_active = false
+threaded = true
+progress_bar_delay = -1
+language = "fr"

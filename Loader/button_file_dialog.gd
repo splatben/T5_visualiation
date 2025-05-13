@@ -1,6 +1,6 @@
 extends Button
 
-@onready var popup = get_node("FileDialog")
+@onready var popup = $FileDialog
 
 func _on_button_pressed() -> void:
 	popup.show()
