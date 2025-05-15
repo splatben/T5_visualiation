@@ -3,6 +3,7 @@ extends FileDialog
 signal is_loaded(gltf:Node)
 signal load_failed()
 
+var _annotation = preload("res://material/Annotation/Annotation.tscn")
 var _thread:Thread
 var mutex := Mutex.new()
 var formats := ["None","PNG","JPEG","Lossless WebP","Lossy WebP"]
@@ -27,6 +28,8 @@ func _on_file_selected(file:String):
 		_thread.start(Callable(self, "_load").bind(file))
 	elif ext == "xyz":
 		_thread.start(Callable(self, "_load_xyz").bind(file))
+	elif ext == "dat":
+		_thread.start(Callable(self, "_load_data").bind(file))
 	hide()
 
 func _load(file:String):
@@ -53,7 +56,7 @@ func _load_gltf(file:String):
 		gltf = gltf_doc.generate_scene(gltf_state)
 		add_static_body(gltf)
 		if(gltf is MeshInstance3D):
-			_emit_load.call_deferred(gltf.get_parent())
+			_emit_load.call_deferred(gltf.get_parent().get_parent())
 		else:
 			_emit_load.call_deferred(gltf)
 	else:
@@ -98,18 +101,36 @@ func _load_xyz(filePath:String):
 	
 	#fini
 	add_static_body(mesh_instance)
-	_emit_load.call_deferred(mesh_instance.get_parent())
+	_emit_load.call_deferred(mesh_instance.get_parent().get_parent())
 	
+
+func _load_data(filePath:String):
+	if(FileAccess.file_exists(filePath.left(-4)+".gltf")):
+		_load_gltf(filePath.left(-4)+".gltf")
+	elif(FileAccess.file_exists(filePath.left(-4)+".glb")):
+		_load_gltf(filePath.left(-4)+".glb")
+	else:
+		_emit_load_failed.call_deferred()
+		return ;
+	var file = FileAccess.open(filePath, FileAccess.READ)
+	var com = file.get_var()
+	for an in com:
+		var node = _annotation.instantiate()
+		node._text = an.text
+		node._police = an.police
+		var body = node.get_node("StaticBody3D")
+		print(an)
+		body.set_position(Vector3(an.position.x,an.position.y,an.position.z))
+		body.set_scale(Vector3(an.taille.x,an.taille.y,an.taille.z))
+		body.set_rotation(Vector3(an.rotation.x,an.rotation.y,an.rotation.z))
+		_emit_load.call_deferred(node)
+
 
 func _emit_load(node) -> void:
 	is_loaded.emit(node)
 	
 func _emit_load_failed() -> void:
 	load_failed.emit()
-	
-func _exit_tree():
-	if(_thread):
-		_thread.wait_to_finish()
 
 func _on_format_selected(index: int) -> void:
 	mutex.lock()
@@ -142,8 +163,10 @@ func add_static_body(node):
 				parent = node.get_parent()
 				parent.remove_child(node)
 				node.owner = null
-				parent.add_child(body,true)
 				
+			else : 
+				parent = Node3D.new()
+			parent.add_child(body,true)
 			var coord = -get_point_middle(node.mesh)
 			node.translate(coord) # recentrer
 			colision.translate(coord)# avec la boite de colision c'est mieux
@@ -160,3 +183,7 @@ func add_static_body(node):
 				break
 				return;
 			add_static_body(child)
+
+func _exit_tree():
+	if(_thread):
+		_thread.wait_to_finish()

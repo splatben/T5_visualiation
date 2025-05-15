@@ -1,26 +1,38 @@
-class_name Bulle_Annotation
+class_name Annotation
 extends Node3D
 
 static var next_id := 1
 
 var id : int
 
-@onready var text1 = get_node("StaticBody3D/Viewport2Din3D").get_scene_instance()
+var text1:Node
 
-@onready var text2 = get_node("StaticBody3D/Viewport2Din3D2").get_scene_instance()
+var text2:Node
 
-func text_update(text:String):
+@export var _text:= "[color=red]Hello [/color] [b]world [/b][i]! [/i]"
+
+@export var _police := 40
+
+func _ready():
+	text1 = get_node("StaticBody3D/Viewport2Din3D").get_scene_instance()
+	text2 = get_node("StaticBody3D/Viewport2Din3D2").get_scene_instance()
+	set_text(_text)
+	set_police(_police)
+	#get_node("StaticBody3D").set_global_position(get_node("StaticBody3D").get_position())
+
+func set_text(text:String):
 	text1.set_text(text)
 	text2.set_text(text)
+	_text = text
 
-func police_update(police:String):
-	var number = police.to_int()
-	if number > 0:
-		text1.push_font_size(number)
-		text2.push_font_size(number)
+func set_police(police:int):
+	if police > 0:
+		text1.push_font_size(police)
+		text2.push_font_size(police)
+		_police = police
 
 func get_text() -> String:
-	return text1.text
+	return _text
 
 func get_police() -> int:
-	return text1.get_theme_font_size("font_size")
+	return _police

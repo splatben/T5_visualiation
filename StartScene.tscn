@@ -12,6 +12,7 @@ glasses_scene = ExtResource("2_uu6xs")
 start_location = NodePath("../T5Gameboard")
 
 [node name="SpectatorCamera" parent="." index="3" instance=ExtResource("4_1bvp3")]
+transform = Transform3D(1, 0, 0, 0, 0.925362, 0.379085, 0, -0.379085, 0.925362, 0.00998652, 0.345091, 0.726646)
 vertical = 1.5
 horizontal = 3.0
 

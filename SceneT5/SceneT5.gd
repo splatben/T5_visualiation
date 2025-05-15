@@ -31,8 +31,8 @@ func _ready():
 	window.close_requested.connect(_on_window_close_requested)
 
 func _on_load(node:Node):
-	print_text.text="Import Successfull"
 	add_child(node,true)
+	print_text.text="Import Successfull of "+node.name
 	maj_button_Delete()
 
 func _print_error():
@@ -50,11 +50,11 @@ func maj_button_Delete() -> void:
 		delete_list.add_item(get_children()[n].get_name(),n)#recupère le dernier 
 		# élément du chemin du node pour l'afficher dans la liste des "à suprimmer"
 
-func _on_new_comment(pos:Vector3):
+func _on_new_comment(pos:Vector3,parent:Node3D):
 	var node = annotation.instantiate()
-	add_child(node,true)
+	parent.add_child(node,true)
+	node.set_position(parent.to_local(pos))
 	node.add_to_group("Annotation",true)
-	node.set_global_position(pos)
 	_on_edit(node)
 	maj_button_Delete()
 
@@ -86,9 +86,9 @@ func _on_edit(node:Node):
 
 func _on_text_changed():
 	if _connected_comment != null:
-		_connected_comment.text_update(text_edit.text)
+		_connected_comment.set_text(text_edit.text)
 
-func _on_police_changed():
+func _on_police_changed(text : String):
 	if _connected_comment != null:
-		if police.text.is_valid_int():
-			_connected_comment.police_update(police.text)
+		if text.is_valid_int():
+			_connected_comment.set_police(text.to_int())
