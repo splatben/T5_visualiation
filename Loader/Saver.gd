@@ -1,15 +1,10 @@
 extends FileDialog
 
 @onready var _scene = get_node("../../../../Controller")
-
 var _thread:Thread
-var mutex := Mutex.new()
-var formats := ["None","PNG","JPEG","Lossless WebP","Lossy WebP"]
-var format := 0
 
 func _ready():
 	self.file_selected.connect(_save)
-	get_node('../../ListFormat').item_selected.connect(_on_format_selected)
 
 func _save(path:String):
 	if(_thread):
@@ -18,26 +13,16 @@ func _save(path:String):
 		else:
 			_thread.wait_to_finish()
 	_thread = Thread.new()
-	
-	var ext = path.get_extension()
-	
-	if ext == "glb" or ext == "gltf":
-		_thread.start(Callable(self, "_save_gltf_with_annotation").bind(_scene.duplicate(7),path))
+	_thread.start(Callable(self, "_save_annotation").bind(_scene.duplicate(6),path))
 
-func _save_gltf_with_annotation(scene : Node3D, path : String):
-	var gltf_doc = GLTFDocument.new() 
-	var gltf_state := GLTFState.new()
-	var com = []
+func _save_annotation(scene : Node3D, path : String):
+	var nodes = []
 	var file = FileAccess.open(path.get_slice(".",0)+".dat",FileAccess.WRITE)
-	mutex.lock()
-	gltf_doc.image_format = formats[format]
-	mutex.unlock()
-	for child  in scene.get_children():
-		if child.is_in_group("Annotation"):
-			var body = child.get_node("StaticBody3D")
-			var data = {
-			"text":child.get_text().c_escape(),
-			"police":child.get_police(),
+	
+	for node  in scene.get_children():
+		var body = node.get_child(0)
+		var data_node = {
+		"file": node.get_meta("file",path),
 			"position":
 				{
 					"x":body.get_position().x,
@@ -55,17 +40,37 @@ func _save_gltf_with_annotation(scene : Node3D, path : String):
 					"x":body.get_rotation().x,
 					"y":body.get_rotation().y,
 					"z":body.get_rotation().z
-				}
+				},
+			"annotations":[]
 			}
-			print(data)
-			com.append(data)
-			scene.remove_child(child)
-	gltf_doc.append_from_scene(scene, gltf_state)
-	gltf_doc.write_to_filesystem(gltf_state, path)
-	file.store_var(com)
+		for child in body.get_children():
+			if child.is_in_group("Annotation"):
+				var body2 = child.get_child(0)
+				print(body2.get_position())
+				var data_ann = {
+				"text":child.get_text(),
+				"police":child.get_police(),
+				"position":
+					{
+						"x":body2.get_position().x,
+						"y":body2.get_position().y,
+						"z":body2.get_position().z
+					},
+				"taille":
+					{
+						"x":body2.get_scale().x,
+						"y":body2.get_scale().y,
+						"z":body2.get_scale().z
+					},
+				"rotation":
+					{
+						"x":body2.get_rotation().x,
+						"y":body2.get_rotation().y,
+						"z":body2.get_rotation().z
+					}
+				}
+				data_node["annotations"].append(data_ann)
+		nodes.append(data_node)
+	print(nodes)
+	file.store_var(nodes)
 	file.close()
-
-func _on_format_selected(index: int) -> void:
-	mutex.lock()
-	format = index
-	mutex.unlock()

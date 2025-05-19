@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://bjw2g401n2uwp"]
+[gd_scene load_steps=6 format=3 uid="uid://bjw2g401n2uwp"]
 
 [ext_resource type="Texture2D" uid="uid://pbvseyh32lcr" path="res://material/border.png" id="1_isicr"]
 [ext_resource type="Script" uid="uid://q3naaokeuot" path="res://Loader/button_file_dialog.gd" id="2_5cvxt"]
 [ext_resource type="Script" uid="uid://drn1obbtwyoqt" path="res://Loader/Loader.gd" id="2_hfu3d"]
+[ext_resource type="Script" uid="uid://cj1cbbqk2n2bt" path="res://Loader/list_format.gd" id="4_108vh"]
 [ext_resource type="Script" uid="uid://ivw3thn8bdqt" path="res://Loader/Saver.gd" id="4_pf47n"]
 
 [node name="MenuLoader" type="Control"]
@@ -127,6 +128,7 @@ popup/item_3/text = "Lossless WebP"
 popup/item_3/id = 3
 popup/item_4/text = "Lossy WebP"
 popup/item_4/id = 4
+script = ExtResource("4_108vh")
 
 [node name="Button2" type="Button" parent="."]
 layout_mode = 0
@@ -140,13 +142,15 @@ script = ExtResource("2_5cvxt")
 
 [node name="FileDialog" type="FileDialog" parent="Button2"]
 auto_translate_mode = 1
+title = "Save annotation for an object"
 initial_position = 1
 transient = false
 exclusive = false
 always_on_top = true
 popup_window = true
+ok_button_text = "Save for"
 access = 2
-filters = PackedStringArray("*.gltf", "*.glb")
+filters = PackedStringArray("*.gltf", "*.glb", "*.xyz")
 show_hidden_files = true
 use_native_dialog = true
 script = ExtResource("4_pf47n")

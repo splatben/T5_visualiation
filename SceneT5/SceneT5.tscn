@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://hwjv6vxfyk2e" path="res://SceneT5/gestion_fenetre/window2.gd" id="5_vjbxs"]
 
 [sub_resource type="Environment" id="Environment_4cvuw"]
+background_mode = 2
 ambient_light_source = 3
 ambient_light_color = Color(1, 1, 1, 1)
 

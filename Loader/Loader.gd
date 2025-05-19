@@ -2,16 +2,13 @@ extends FileDialog
 
 signal is_loaded(gltf:Node)
 signal load_failed()
+signal load_ann(ann:Node3D)
 
 var _annotation = preload("res://material/Annotation/Annotation.tscn")
 var _thread:Thread
-var mutex := Mutex.new()
-var formats := ["None","PNG","JPEG","Lossless WebP","Lossy WebP"]
-var format := 0
 
 func _ready():
 	self.file_selected.connect(_on_file_selected)
-	get_node('../../ListFormat').item_selected.connect(_on_format_selected)
 
 func _on_file_selected(file:String):
 	if(_thread):
@@ -23,11 +20,11 @@ func _on_file_selected(file:String):
 	
 	var ext = file.get_extension()
 	if ext == "glb" or ext == "gltf":
-		_thread.start(Callable(self, "_load_gltf").bind(file))
+		_thread.start(Callable(self, "_load_gltf").bind(file,false))
 	elif ext == "tscn" :
 		_thread.start(Callable(self, "_load").bind(file))
 	elif ext == "xyz":
-		_thread.start(Callable(self, "_load_xyz").bind(file))
+		_thread.start(Callable(self, "_load_xyz").bind(file,false))
 	elif ext == "dat":
 		_thread.start(Callable(self, "_load_data").bind(file))
 	hide()
@@ -35,20 +32,20 @@ func _on_file_selected(file:String):
 func _load(file:String):
 	var nodePacked = load(file) #charger une scène qui n'est pas deja dans la scène 
 	if nodePacked == null:
-		_emit_load_failed.call_deferred()
+		load_failed.emit.call_deferred()
 		return;
 	var node = nodePacked.instantiate()
 	add_static_body(node)
-	_emit_load.call_deferred(node)
+	is_loaded.emit.call_deferred(node)
 	
-func _load_gltf(file:String):
+func _load_gltf(file:String,quiet : bool):
 	var gltf_state: GLTFState = GLTFState.new()
 	gltf_state.handle_binary_image = GLTFState.HANDLE_BINARY_EMBED_AS_UNCOMPRESSED
 	var err = ERR_FILE_CANT_OPEN
 	var gltf_doc = GLTFDocument.new()
-	mutex.lock()
-	gltf_doc.image_format = formats[format]
-	mutex.unlock()
+	GlobalVar.mutex.lock()
+	gltf_doc.image_format = GlobalVar.format
+	GlobalVar.mutex.unlock()
 	err = gltf_doc.append_from_file(file, gltf_state)
 	var gltf:Node3D = null
 	
@@ -56,23 +53,37 @@ func _load_gltf(file:String):
 		gltf = gltf_doc.generate_scene(gltf_state)
 		add_static_body(gltf)
 		if(gltf is MeshInstance3D):
-			_emit_load.call_deferred(gltf.get_parent().get_parent())
+			var node = gltf.get_parent().get_parent()
+			node.set_meta("file",file)
+			if !quiet:
+				is_loaded.emit.call_deferred(node)
+			return node
 		else:
-			_emit_load.call_deferred(gltf)
+			gltf.set_meta("file",file)
+			if !quiet:
+				is_loaded.emit.call_deferred(gltf)
+			return gltf
 	else:
-		_emit_load_failed.call_deferred()
+		if !quiet:
+			load_failed.emit.call_deferred()
+		return null
 
-func _load_xyz(filePath:String):
+func _load_xyz(filePath:String, quiet:bool):
 	var points = PackedVector3Array()
 	var file = FileAccess.open(filePath, FileAccess.READ)
 	var ligne : String = file.get_line()
 	if(ligne == ""):
-		_emit_load_failed.call_deferred()
-		return;
+		if !quiet:
+			load_failed.emit.call_deferred()
+		return null;
 	while ligne != "":
 		if ligne[0] != "#" :
 			var pos = Vector3(0,0,0)
 			var array = ligne.split(" ",false)
+			if(array.length() != 3):
+				if !quiet:
+					load_failed.emit.call_deferred()
+				return null;
 			pos.x = array[0].to_float()
 			pos.y = array[1].to_float()
 			pos.z = array[2].to_float()
@@ -101,77 +112,86 @@ func _load_xyz(filePath:String):
 	
 	#fini
 	add_static_body(mesh_instance)
-	_emit_load.call_deferred(mesh_instance.get_parent().get_parent())
-	
+	mesh_instance.get_parent().get_parent().set_meta("file",filePath)
+	if !quiet:
+		is_loaded.emit.call_deferred(mesh_instance.get_parent().get_parent())
+	return mesh_instance.get_parent().get_parent();
 
 func _load_data(filePath:String):
-	if(FileAccess.file_exists(filePath.left(-4)+".gltf")):
-		_load_gltf(filePath.left(-4)+".gltf")
-	elif(FileAccess.file_exists(filePath.left(-4)+".glb")):
-		_load_gltf(filePath.left(-4)+".glb")
-	else:
-		_emit_load_failed.call_deferred()
-		return ;
 	var file = FileAccess.open(filePath, FileAccess.READ)
 	var com = file.get_var()
-	for an in com:
-		var node = _annotation.instantiate()
-		node._text = an.text
-		node._police = an.police
-		var body = node.get_node("StaticBody3D")
-		print(an)
-		body.set_position(Vector3(an.position.x,an.position.y,an.position.z))
-		body.set_scale(Vector3(an.taille.x,an.taille.y,an.taille.z))
-		body.set_rotation(Vector3(an.rotation.x,an.rotation.y,an.rotation.z))
-		_emit_load.call_deferred(node)
+	print(com)
+	for data_node in com:
+		var node = null
+		var ext = data_node["file"].get_extension()
+		if(!FileAccess.file_exists(data_node["file"])):
+			data_node["file"] = data_node["file"].get_slice("/", data_node["file"].get_slice_count("/")-1)
+			print("../"+data_node["file"] )
+		if(ext == "glb" or ext == "gltf"):
+			node = _load_gltf(data_node["file"],true)
+		elif(ext == "xyz"):
+			node = _load_xyz(data_node["file"],true)
+		if(node == null):
+			load_failed.emit.call_deferred()
+			return;
+		var body = node.get_child(0)
+		body.set_position(Vector3(data_node["position"].x,data_node["position"].y,data_node["position"].z))
+		body.set_rotation(Vector3(data_node["rotation"].x,data_node["rotation"].y,data_node["rotation"].z))
+		body.set_scale(Vector3(data_node["taille"].x,data_node["taille"].y,data_node["taille"].z))
+		for data_ann in data_node.annotations:
+			var ann = _annotation.instantiate()
+			ann.set_text(data_ann.text)
+			ann.set_police(data_ann.police)
+			var body2 = ann.get_child(0)
+			body2.set_position(Vector3(data_ann["position"].x,data_ann["position"].y,data_ann["position"].z))
+			body2.set_rotation(Vector3(data_ann["rotation"].x,data_ann["rotation"].y,data_ann["rotation"].z))
+			body2.set_scale(Vector3(data_ann["taille"].x,data_ann["taille"].y,data_ann["taille"].z))
+			body.add_child(ann)
+			load_ann.emit.call_deferred(ann)
+		is_loaded.emit.call_deferred(node)
 
+func get_center(arr_mesh : Mesh) -> Vector3 : 
+	return arr_mesh.get_aabb().get_center() #centre de la boundingBox (AABB)
 
-func _emit_load(node) -> void:
-	is_loaded.emit(node)
-	
-func _emit_load_failed() -> void:
-	load_failed.emit()
+#func update_mesh_origin(coord : Vector3, arr_mesh:Mesh) -> void : 
+#	for surf in arr_mesh.get_surface_count():
+#		var points = arr_mesh.surface_get_arrays(surf)[0]
+#		for i in range(len(points)):
+#			points[i] = points[i]+coord
+#		arr_mesh.surface_update_vertex_region(surf,0,points.to_byte_array())
 
-func _on_format_selected(index: int) -> void:
-	mutex.lock()
-	format = index
-	mutex.unlock()
-
-func get_point_middle(arr_mesh : Mesh) -> Vector3 : 
-	var points = []
-	for surf in arr_mesh.get_surface_count():
-		points.append_array(arr_mesh.surface_get_arrays(surf)[0])
-	var pos_middle = Vector3(0,0,0)
-	for point in points : 
-		pos_middle += point
-	pos_middle = pos_middle / len(points)
-	return pos_middle
+func update_shape_origin(coord : Vector3, shape : ConvexPolygonShape3D) ->  void: 
+	var points = shape.get_points()
+	for i in range(len(points)):
+		points[i] = points[i]+coord
+	shape.set_points(points)
 
 func add_static_body(node):
 	if node != null:
 		if node is MeshInstance3D:
-			
 			node.position = Vector3(0,0,0)
-			
+			var coord = get_center(node.mesh)
 			var body = StaticBody3D.new()
 			var colision = CollisionShape3D.new()
 			colision.shape = node.mesh.create_convex_shape(true) #cree colision
+			update_shape_origin(-coord,colision.shape)
 			
 			var parent:Node3D= null
-			
-			if(node.get_parent() != null):# modifier le parent pour mettre le body et non le mesh en enfant
+			if(node.get_parent() != null):# modifier le parent pour retirer le mesh
 				parent = node.get_parent()
 				parent.remove_child(node)
 				node.owner = null
-				
 			else : 
-				parent = Node3D.new()
+				parent = Node3D.new()#ou le crée
 			parent.add_child(body,true)
-			var coord = -get_point_middle(node.mesh)
-			node.translate(coord) # recentrer
-			colision.translate(coord)# avec la boite de colision c'est mieux
-				
-			body.add_child(node,true)
+			node.transform.basis = Basis()
+			node.transform.origin = Vector3(0,0,0)
+			node.translate(-coord) # recentrer
+			#colision.translate(-coord)# avec la boite de colision c'est mieux
+			var parent_mesh_instance = Node3D.new()
+			parent_mesh_instance.add_child(node)
+			
+			body.add_child(parent_mesh_instance)
 			body.add_child(colision,true)
 			body.set_collision_layer_value(1, true)
 			body.set_collision_mask_value(1, true)
@@ -187,3 +207,18 @@ func add_static_body(node):
 func _exit_tree():
 	if(_thread):
 		_thread.wait_to_finish()
+
+func debug_point(pos : Vector3)-> MeshInstance3D:
+	var mesh_instance = MeshInstance3D.new()
+	var sphere_mesh = SphereMesh.new()
+	var material = ORMMaterial3D.new()
+	
+	mesh_instance.position = pos
+	sphere_mesh.radius = 0.025
+	sphere_mesh.height = 0.05
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color.WHITE_SMOKE
+	sphere_mesh.material = material
+	mesh_instance.mesh = sphere_mesh
+	
+	return mesh_instance

@@ -10,14 +10,15 @@ config_version=5
 
 [application]
 
-config/name="Nouveau projet de jeu"
+config/name="visualisation avec tilt five"
 run/main_scene="uid://cbox44qtwp1ow"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://icon.svg"
+run/max_fps=120
 
 [autoload]
 
 T5Interface="*res://addons/tiltfive/T5Interface.gd"
+GlobalVar="*res://GlobalVar.gd"
 
 [display]
 
@@ -30,7 +31,7 @@ project/assembly_name="Nouveau projet de jeu"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/tiltfive/plugin.cfg", "res://addons/tiltfive_tools/plugin.cfg")
+enabled=PackedStringArray("res://addons/string_enum/plugin.cfg", "res://addons/tiltfive/plugin.cfg", "res://addons/tiltfive_tools/plugin.cfg")
 
 [global_group]
 

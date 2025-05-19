@@ -17,7 +17,7 @@ gameboard_scale = 3.0
 [node name="T5-glasses" parent="Origin/Camera" index="0" instance=ExtResource("2_5yrwf")]
 
 [node name="Viewport2Din3D" parent="Origin/Camera/T5-glasses" index="1" instance=ExtResource("3_gskgj")]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.000506163, 0.112729, -0.616854)
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0.0162726, -0.7)
 screen_size = Vector2(0.75, 1)
 scene = ExtResource("4_06mnu")
 viewport_size = Vector2(300, 400)
