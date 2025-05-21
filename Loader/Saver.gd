@@ -1,5 +1,7 @@
 extends FileDialog
 
+signal is_saved()
+
 @onready var _scene = get_node("../../../../Controller")
 var _thread:Thread
 
@@ -17,12 +19,12 @@ func _save(path:String):
 
 func _save_annotation(scene : Node3D, path : String):
 	var nodes = []
-	var file = FileAccess.open(path.get_slice(".",0)+".dat",FileAccess.WRITE)
+	var file = FileAccess.open(path,FileAccess.WRITE)
 	
 	for node  in scene.get_children():
 		var body = node.get_child(0)
 		var data_node = {
-		"file": node.get_meta("file",path),
+		"file": node.get_meta("file",""),
 			"position":
 				{
 					"x":body.get_position().x,
@@ -71,6 +73,6 @@ func _save_annotation(scene : Node3D, path : String):
 				}
 				data_node["annotations"].append(data_ann)
 		nodes.append(data_node)
-	print(nodes)
 	file.store_var(nodes)
 	file.close()
+	is_saved.emit.call_deferred()

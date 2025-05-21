@@ -1,0 +1,13 @@
+[remap]
+
+importer="ply_importer"
+type="ArrayMesh"
+uid="uid://da0t5v5aknjyo"
+valid=false
+
+[deps]
+
+source_file="res://material/ply/Yoshi.ply"
+
+[params]
+

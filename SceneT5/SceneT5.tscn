@@ -1,11 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://bllf2pnpcc8bl"]
+[gd_scene load_steps=7 format=3 uid="uid://bllf2pnpcc8bl"]
 
 [ext_resource type="PackedScene" uid="uid://dslrsg4cn04o4" path="res://addons/tiltfive_tools/staging/scene.tscn" id="1_eojn1"]
 [ext_resource type="Script" uid="uid://dsufi0866jvdg" path="res://SceneT5/gestion_fenetre/window.gd" id="2_wji7x"]
 [ext_resource type="PackedScene" uid="uid://bjw2g401n2uwp" path="res://Loader/MenuLoader.tscn" id="3_r0k8h"]
 [ext_resource type="Script" uid="uid://ca4aib3e6ic4l" path="res://SceneT5/SceneT5.gd" id="4_x3bmr"]
 [ext_resource type="PackedScene" uid="uid://cpq8yim68oh12" path="res://SceneT5/MenuAnnotation.tscn" id="5_u5fu7"]
-[ext_resource type="Script" uid="uid://hwjv6vxfyk2e" path="res://SceneT5/gestion_fenetre/window2.gd" id="5_vjbxs"]
 
 [sub_resource type="Environment" id="Environment_4cvuw"]
 background_mode = 2
@@ -35,12 +34,4 @@ script = ExtResource("2_wji7x")
 offset_right = 0.0
 offset_bottom = 0.0
 
-[node name="Window2" type="Window" parent="." index="4"]
-title = "Description de L'annotation"
-initial_position = 1
-size = Vector2i(600, 300)
-popup_window = true
-min_size = Vector2i(600, 300)
-script = ExtResource("5_vjbxs")
-
-[node name="MenuAnotation" parent="Window2" index="0" instance=ExtResource("5_u5fu7")]
+[node name="WriteAnnotation" parent="." index="4" instance=ExtResource("5_u5fu7")]

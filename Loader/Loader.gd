@@ -1,7 +1,7 @@
 extends FileDialog
 
 signal is_loaded(gltf:Node)
-signal load_failed()
+signal load_failed(err:String)
 signal load_ann(ann:Node3D)
 
 var _annotation = preload("res://material/Annotation/Annotation.tscn")
@@ -27,12 +27,14 @@ func _on_file_selected(file:String):
 		_thread.start(Callable(self, "_load_xyz").bind(file,false))
 	elif ext == "dat":
 		_thread.start(Callable(self, "_load_data").bind(file))
+	elif ext == "ply":
+		_thread.start(Callable(self, "_load_ply_point").bind(file,false))
 	hide()
 
 func _load(file:String):
 	var nodePacked = load(file) #charger une scène qui n'est pas deja dans la scène 
 	if nodePacked == null:
-		load_failed.emit.call_deferred()
+		load_failed.emit.call_deferred("no scene")
 		return;
 	var node = nodePacked.instantiate()
 	add_static_body(node)
@@ -43,9 +45,9 @@ func _load_gltf(file:String,quiet : bool):
 	gltf_state.handle_binary_image = GLTFState.HANDLE_BINARY_EMBED_AS_UNCOMPRESSED
 	var err = ERR_FILE_CANT_OPEN
 	var gltf_doc = GLTFDocument.new()
-	GlobalVar.mutex.lock()
-	gltf_doc.image_format = GlobalVar.format
-	GlobalVar.mutex.unlock()
+	GlobalScope.mutex.lock()
+	gltf_doc.image_format = GlobalScope.format
+	GlobalScope.mutex.unlock()
 	err = gltf_doc.append_from_file(file, gltf_state)
 	var gltf:Node3D = null
 	
@@ -65,7 +67,7 @@ func _load_gltf(file:String,quiet : bool):
 			return gltf
 	else:
 		if !quiet:
-			load_failed.emit.call_deferred()
+			load_failed.emit.call_deferred(str(err))
 		return null
 
 func _load_xyz(filePath:String, quiet:bool):
@@ -74,7 +76,7 @@ func _load_xyz(filePath:String, quiet:bool):
 	var ligne : String = file.get_line()
 	if(ligne == ""):
 		if !quiet:
-			load_failed.emit.call_deferred()
+			load_failed.emit.call_deferred(str(file.get_error()))
 		return null;
 	while ligne != "":
 		if ligne[0] != "#" :
@@ -82,7 +84,7 @@ func _load_xyz(filePath:String, quiet:bool):
 			var array = ligne.split(" ",false)
 			if(array.length() != 3):
 				if !quiet:
-					load_failed.emit.call_deferred()
+					load_failed.emit.call_deferred("corrompu")
 				return null;
 			pos.x = array[0].to_float()
 			pos.y = array[1].to_float()
@@ -117,22 +119,91 @@ func _load_xyz(filePath:String, quiet:bool):
 		is_loaded.emit.call_deferred(mesh_instance.get_parent().get_parent())
 	return mesh_instance.get_parent().get_parent();
 
+func _load_ply_point(filePath:String, quiet:bool):
+	var dico = {}
+	var file = FileAccess.open(filePath, FileAccess.READ)
+	var ligne : String = file.get_line()
+	if(ligne == ""):
+		if !quiet:
+			load_failed.emit.call_deferred()
+		return null;
+	var headers = []
+	var headers_required = ["property float x","property float y","property float z",
+	"property uchar red","property uchar green","property uchar blue"]
+	while ligne!= "end_header":
+		print(ligne)
+		if ligne.get_slice(" ",1) == "face":
+			if !quiet:
+				load_failed.emit.call_deferred("not point cloud")
+			return null;
+		headers.append(ligne)
+		ligne = file.get_line()
+	for h in headers_required:
+		if h not in headers:
+			if !quiet:
+				load_failed.emit.call_deferred("bad header need position and color")
+			return null;
+	ligne = file.get_line()
+	while ligne != "":
+		var pos = Vector3(0,0,0)
+		var color = Vector3(0,0,0)
+		var array = ligne.split(" ",false)
+		if(len(array)!= 6):
+			if !quiet:
+				load_failed.emit.call_deferred("corrompu")
+			return null;
+		pos.x = array[0].to_float()
+		pos.y = array[1].to_float()
+		pos.z = array[2].to_float()
+		color.x = array[3].to_float()
+		color.y = array[4].to_float()
+		color.z = array[5].to_float()
+		dico[str(color.x)+"/"+str(color.y)+"/"+str(color.z)].append(pos)
+		ligne = file.get_line()
+	file.close()
+	# Create the ArrayMesh.
+	var arr_mesh = ArrayMesh.new()
+	for color in dico:
+		var arrays = []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = dico[color]
+		arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_POINTS, arrays)
+		
+		#Material for array mesh (1 surface)
+		var mat = ORMMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.use_point_size = true
+		mat.point_size = 3
+		var colors = color.split("/")
+		mat.albedo_color = Color(colors[0],colors[1],colors[2])
+		mat.set_flag(BaseMaterial3D.FLAG_ALBEDO_FROM_VERTEX_COLOR,true)
+		arr_mesh.surface_set_material(0,mat)
+	
+	var mesh_instance = MeshInstance3D.new()
+	mesh_instance.mesh = arr_mesh
+	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	
+	#fini
+	add_static_body(mesh_instance)
+	mesh_instance.get_parent().get_parent().set_meta("file",filePath)
+	if !quiet:
+		is_loaded.emit.call_deferred(mesh_instance.get_parent().get_parent())
+	return mesh_instance.get_parent().get_parent();
+	
 func _load_data(filePath:String):
 	var file = FileAccess.open(filePath, FileAccess.READ)
 	var com = file.get_var()
-	print(com)
 	for data_node in com:
 		var node = null
 		var ext = data_node["file"].get_extension()
 		if(!FileAccess.file_exists(data_node["file"])):
-			data_node["file"] = data_node["file"].get_slice("/", data_node["file"].get_slice_count("/")-1)
-			print("../"+data_node["file"] )
+			data_node["file"] = "./"+data_node["file"].get_slice("/", data_node["file"].get_slice_count("/")-1)
 		if(ext == "glb" or ext == "gltf"):
 			node = _load_gltf(data_node["file"],true)
 		elif(ext == "xyz"):
 			node = _load_xyz(data_node["file"],true)
 		if(node == null):
-			load_failed.emit.call_deferred()
+			load_failed.emit.call_deferred("no object file")
 			return;
 		var body = node.get_child(0)
 		body.set_position(Vector3(data_node["position"].x,data_node["position"].y,data_node["position"].z))

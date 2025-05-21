@@ -7,12 +7,15 @@
 [node name="Main" instance=ExtResource("1_glv2v")]
 start_scene = "uid://bllf2pnpcc8bl"
 
+[node name="Fade" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.0172644)
+
 [node name="T5Manager" parent="." index="1" node_paths=PackedStringArray("start_location")]
 glasses_scene = ExtResource("2_uu6xs")
 start_location = NodePath("../T5Gameboard")
 
 [node name="SpectatorCamera" parent="." index="3" instance=ExtResource("4_1bvp3")]
-transform = Transform3D(1, 0, 0, 0, 0.925362, 0.379085, 0, -0.379085, 0.925362, 0.00998652, 0.345091, 0.726646)
+transform = Transform3D(1, 0, 0, 0, 0.925362, 0.379085, 0, -0.379085, 0.925362, 0.00998652, 1.02574, 1.90395)
 vertical = 1.5
 horizontal = 3.0
 

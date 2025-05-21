@@ -27,8 +27,8 @@ func set_police(police:int):
 		_police = police
 
 func print_police():
-	text1.push_font_size(_police)
-	text2.push_font_size(_police)
+	text1.theme.default_font_size = _police
+	text2.theme.default_font_size = _police
 
 func get_text() -> String:
 	return _text

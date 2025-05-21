@@ -71,7 +71,7 @@ func _ready() -> void:
 	_wand.button_pressed.connect(_on_button_pressed)
 	_pointer.pointer_entered.connect(on_pointer_entered)
 	_pointer.pointer_exited.connect(on_pointer_exited)
-	GlobalVar.glasses_connected.emit()
+	GlobalScope.glasses_connected.emit()
 
 func on_pointer_move(_target : Node3D, from_pos : Vector3, to_pos : Vector3) -> void :
 	if(from_pos != to_pos):

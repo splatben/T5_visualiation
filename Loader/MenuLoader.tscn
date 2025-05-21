@@ -1,19 +1,20 @@
-[gd_scene load_steps=6 format=3 uid="uid://bjw2g401n2uwp"]
+[gd_scene load_steps=8 format=3 uid="uid://bjw2g401n2uwp"]
 
 [ext_resource type="Texture2D" uid="uid://pbvseyh32lcr" path="res://material/border.png" id="1_isicr"]
+[ext_resource type="Script" uid="uid://bod8o71aigi44" path="res://Loader/delete_list.gd" id="2_3vgnd"]
 [ext_resource type="Script" uid="uid://q3naaokeuot" path="res://Loader/button_file_dialog.gd" id="2_5cvxt"]
 [ext_resource type="Script" uid="uid://drn1obbtwyoqt" path="res://Loader/Loader.gd" id="2_hfu3d"]
 [ext_resource type="Script" uid="uid://cj1cbbqk2n2bt" path="res://Loader/list_format.gd" id="4_108vh"]
 [ext_resource type="Script" uid="uid://ivw3thn8bdqt" path="res://Loader/Saver.gd" id="4_pf47n"]
+[ext_resource type="Script" uid="uid://cepp2jjto8jlr" path="res://Loader/print_error.gd" id="4_vghfb"]
 
 [node name="MenuLoader" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -1.0
-offset_right = -553.0
-offset_bottom = -348.0
+offset_right = -552.0
+offset_bottom = -298.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -35,10 +36,10 @@ patch_margin_bottom = 10
 
 [node name="RichTextLabel4" type="RichTextLabel" parent="."]
 layout_mode = 0
-offset_left = 24.0
-offset_top = 132.0
-offset_right = 260.0
-offset_bottom = 156.0
+offset_left = 30.0
+offset_top = 130.0
+offset_right = 266.0
+offset_bottom = 154.0
 text = "Format d'image du gltf ou glb :"
 fit_content = true
 
@@ -53,10 +54,10 @@ fit_content = true
 
 [node name="RichTextLabel3" type="RichTextLabel" parent="."]
 layout_mode = 0
-offset_left = 57.0
-offset_top = 56.0
-offset_right = 222.0
-offset_bottom = 80.0
+offset_left = 66.0
+offset_top = 54.0
+offset_right = 231.0
+offset_bottom = 78.0
 text = "Pouvant être ajouté :"
 fit_content = true
 
@@ -77,13 +78,14 @@ offset_right = 556.0
 offset_bottom = 124.0
 toggle_mode = false
 allow_reselect = true
+script = ExtResource("2_3vgnd")
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 0
-offset_left = 64.0
-offset_top = 90.0
-offset_right = 212.0
-offset_bottom = 126.0
+offset_left = 71.0
+offset_top = 88.0
+offset_right = 219.0
+offset_bottom = 124.0
 text = "Charger model 3D"
 script = ExtResource("2_5cvxt")
 
@@ -97,24 +99,25 @@ popup_window = true
 ok_button_text = "Open"
 file_mode = 0
 access = 2
-filters = PackedStringArray("*.gltf", "*.glb", "*.tscn", "*.xyz", "*.dat")
+filters = PackedStringArray("*.gltf", "*.glb", "*.tscn", "*.xyz", "*.dat", "*.ply")
 show_hidden_files = true
 use_native_dialog = true
 script = ExtResource("2_hfu3d")
 
 [node name="PrintError" type="RichTextLabel" parent="."]
 layout_mode = 0
-offset_left = 362.0
-offset_top = 154.0
-offset_right = 505.0
-offset_bottom = 240.0
+offset_left = 345.0
+offset_top = 152.0
+offset_right = 539.0
+offset_bottom = 264.0
+script = ExtResource("4_vghfb")
 
 [node name="ListFormat" type="OptionButton" parent="."]
 layout_mode = 0
-offset_left = 66.0
-offset_top = 166.0
-offset_right = 210.0
-offset_bottom = 197.0
+offset_left = 74.0
+offset_top = 164.0
+offset_right = 218.0
+offset_bottom = 195.0
 toggle_mode = false
 selected = 0
 item_count = 5
@@ -132,12 +135,12 @@ script = ExtResource("4_108vh")
 
 [node name="Button2" type="Button" parent="."]
 layout_mode = 0
-offset_left = 46.0
-offset_top = 216.0
-offset_right = 229.0
-offset_bottom = 270.0
-text = "Sauvegarder la scène 
-actuelle"
+offset_left = 36.0
+offset_top = 211.0
+offset_right = 257.0
+offset_bottom = 265.0
+text = "Sauvegarder les annotation
+de la scene actuelle"
 script = ExtResource("2_5cvxt")
 
 [node name="FileDialog" type="FileDialog" parent="Button2"]
@@ -148,12 +151,21 @@ transient = false
 exclusive = false
 always_on_top = true
 popup_window = true
-ok_button_text = "Save for"
 access = 2
-filters = PackedStringArray("*.gltf", "*.glb", "*.xyz")
+filters = PackedStringArray("*.dat")
 show_hidden_files = true
 use_native_dialog = true
 script = ExtResource("4_pf47n")
+
+[node name="RichTextLabel6" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 23.0
+offset_top = 271.0
+offset_right = 582.0
+offset_bottom = 346.0
+bbcode_enabled = true
+text = "Pour pouvoir sauvegarder ou charger les fichiers .dat sans problème. Il est recommandé que le .dat est le même nom que le ou les fichiers objet auxquels il est lié"
+fit_content = true
 
 [connection signal="pressed" from="Button" to="Button" method="_on_button_pressed"]
 [connection signal="canceled" from="Button/FileDialog" to="Button" method="_on_file_dialog_canceled"]

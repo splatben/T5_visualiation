@@ -10,7 +10,7 @@ var _enum_to_text:Dictionary ={
 	Wand_Control.Wand_button.X:"x",
 	Wand_Control.Wand_button._1:"1",
 	Wand_Control.Wand_button._2:"2",
-	Wand_Control.Wand_button.STICK:"stick_click",
+	Wand_Control.Wand_button.STICK:"stick click",
 	Wand_Control.Wand_button.MIDDLE:"middle",
 	Wand_Control.Wand_button.GACHETTE:"gachette"
 }

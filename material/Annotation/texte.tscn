@@ -1,6 +1,7 @@
 [gd_scene load_steps=2 format=3 uid="uid://bm1ags6dq1sv2"]
 
 [sub_resource type="Theme" id="Theme_b7iom"]
+resource_local_to_scene = true
 default_font_size = 40
 
 [node name="Anotation" type="RichTextLabel"]

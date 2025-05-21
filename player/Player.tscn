@@ -11,9 +11,6 @@
 [node name="Player" instance=ExtResource("1_83hs8")]
 visible_layers = 1023
 
-[node name="Origin" parent="." index="0"]
-gameboard_scale = 3.0
-
 [node name="T5-glasses" parent="Origin/Camera" index="0" instance=ExtResource("2_5yrwf")]
 
 [node name="Viewport2Din3D" parent="Origin/Camera/T5-glasses" index="1" instance=ExtResource("3_gskgj")]
@@ -23,6 +20,7 @@ scene = ExtResource("4_06mnu")
 viewport_size = Vector2(300, 400)
 
 [node name="T5-wand" parent="Origin/Wand_1" index="0" instance=ExtResource("3_h58on")]
+visible = false
 
 [node name="Pointer" parent="Origin/Wand_1" index="1" instance=ExtResource("5_x8kxw")]
 angle = 0.0
