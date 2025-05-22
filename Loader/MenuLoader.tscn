@@ -1,5 +1,6 @@
-[gd_scene load_steps=8 format=3 uid="uid://bjw2g401n2uwp"]
+[gd_scene load_steps=9 format=3 uid="uid://bjw2g401n2uwp"]
 
+[ext_resource type="Script" uid="uid://dsufi0866jvdg" path="res://Loader/gestion_fenetre/window.gd" id="1_26lhy"]
 [ext_resource type="Texture2D" uid="uid://pbvseyh32lcr" path="res://material/border.png" id="1_isicr"]
 [ext_resource type="Script" uid="uid://bod8o71aigi44" path="res://Loader/delete_list.gd" id="2_3vgnd"]
 [ext_resource type="Script" uid="uid://q3naaokeuot" path="res://Loader/button_file_dialog.gd" id="2_5cvxt"]
@@ -8,20 +9,16 @@
 [ext_resource type="Script" uid="uid://ivw3thn8bdqt" path="res://Loader/Saver.gd" id="4_pf47n"]
 [ext_resource type="Script" uid="uid://cepp2jjto8jlr" path="res://Loader/print_error.gd" id="4_vghfb"]
 
-[node name="MenuLoader" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = -552.0
-offset_bottom = -298.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Window_Menu" type="Window"]
+auto_translate_mode = 1
+title = "Menu"
+initial_position = 1
+size = Vector2i(600, 400)
+script = ExtResource("1_26lhy")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="."]
 z_index = -3
 y_sort_enabled = true
-layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -35,7 +32,6 @@ patch_margin_right = 10
 patch_margin_bottom = 10
 
 [node name="RichTextLabel4" type="RichTextLabel" parent="."]
-layout_mode = 0
 offset_left = 30.0
 offset_top = 130.0
 offset_right = 266.0
@@ -44,7 +40,6 @@ text = "Format d'image du gltf ou glb :"
 fit_content = true
 
 [node name="RichTextLabel2" type="RichTextLabel" parent="."]
-layout_mode = 0
 offset_left = 201.0
 offset_top = 21.0
 offset_right = 461.0
@@ -53,7 +48,6 @@ text = "Elément dans la scène :"
 fit_content = true
 
 [node name="RichTextLabel3" type="RichTextLabel" parent="."]
-layout_mode = 0
 offset_left = 66.0
 offset_top = 54.0
 offset_right = 231.0
@@ -62,7 +56,6 @@ text = "Pouvant être ajouté :"
 fit_content = true
 
 [node name="RichTextLabel5" type="RichTextLabel" parent="."]
-layout_mode = 0
 offset_left = 350.0
 offset_top = 58.0
 offset_right = 540.0
@@ -71,7 +64,6 @@ text = "Pouvant être supprimé :"
 fit_content = true
 
 [node name="DeleteList" type="OptionButton" parent="."]
-layout_mode = 0
 offset_left = 332.0
 offset_top = 93.0
 offset_right = 556.0
@@ -81,7 +73,6 @@ allow_reselect = true
 script = ExtResource("2_3vgnd")
 
 [node name="Button" type="Button" parent="."]
-layout_mode = 0
 offset_left = 71.0
 offset_top = 88.0
 offset_right = 219.0
@@ -105,7 +96,6 @@ use_native_dialog = true
 script = ExtResource("2_hfu3d")
 
 [node name="PrintError" type="RichTextLabel" parent="."]
-layout_mode = 0
 offset_left = 345.0
 offset_top = 152.0
 offset_right = 539.0
@@ -113,7 +103,6 @@ offset_bottom = 264.0
 script = ExtResource("4_vghfb")
 
 [node name="ListFormat" type="OptionButton" parent="."]
-layout_mode = 0
 offset_left = 74.0
 offset_top = 164.0
 offset_right = 218.0
@@ -134,7 +123,6 @@ popup/item_4/id = 4
 script = ExtResource("4_108vh")
 
 [node name="Button2" type="Button" parent="."]
-layout_mode = 0
 offset_left = 36.0
 offset_top = 211.0
 offset_right = 257.0
@@ -158,13 +146,12 @@ use_native_dialog = true
 script = ExtResource("4_pf47n")
 
 [node name="RichTextLabel6" type="RichTextLabel" parent="."]
-layout_mode = 0
 offset_left = 23.0
 offset_top = 271.0
 offset_right = 582.0
 offset_bottom = 346.0
 bbcode_enabled = true
-text = "Pour pouvoir sauvegarder ou charger les fichiers .dat sans problème. Il est recommandé que le .dat est le même nom que le ou les fichiers objet auxquels il est lié"
+text = "Pour pouvoir sauvegarder ou charger les fichiers .dat sans problème. Il est recommandé que le .dat est le même nom que le ou les fichiers objet auxquels il est lié. Si il y a plusieur objet mettre -0, -1, -2 à la fin du nom "
 fit_content = true
 
 [connection signal="pressed" from="Button" to="Button" method="_on_button_pressed"]

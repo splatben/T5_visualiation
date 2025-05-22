@@ -2,7 +2,6 @@ extends FileDialog
 
 signal is_saved()
 
-@onready var _scene = get_node("../../../../Controller")
 var _thread:Thread
 
 func _ready():
@@ -15,7 +14,9 @@ func _save(path:String):
 		else:
 			_thread.wait_to_finish()
 	_thread = Thread.new()
-	_thread.start(Callable(self, "_save_annotation").bind(_scene.duplicate(6),path))
+	if(path.get_extension() != ".dat"):
+		path = path.get_slice(".",0)+".dat"
+	_thread.start(Callable(self, "_save_annotation").bind(GlobalScope.sceneT5.duplicate(6),path))
 
 func _save_annotation(scene : Node3D, path : String):
 	var nodes = []

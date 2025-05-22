@@ -1,4 +1,4 @@
-extends Control
+extends Node
 
 var _origin : T5Origin3D
 var _affichage_zoom : Label

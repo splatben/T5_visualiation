@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://bllf2pnpcc8bl"]
+[gd_scene load_steps=6 format=3 uid="uid://bllf2pnpcc8bl"]
 
 [ext_resource type="PackedScene" uid="uid://dslrsg4cn04o4" path="res://addons/tiltfive_tools/staging/scene.tscn" id="1_eojn1"]
-[ext_resource type="Script" uid="uid://dsufi0866jvdg" path="res://SceneT5/gestion_fenetre/window.gd" id="2_wji7x"]
 [ext_resource type="PackedScene" uid="uid://bjw2g401n2uwp" path="res://Loader/MenuLoader.tscn" id="3_r0k8h"]
 [ext_resource type="Script" uid="uid://ca4aib3e6ic4l" path="res://SceneT5/SceneT5.gd" id="4_x3bmr"]
 [ext_resource type="PackedScene" uid="uid://cpq8yim68oh12" path="res://SceneT5/MenuAnnotation.tscn" id="5_u5fu7"]
@@ -18,20 +17,15 @@ spawn_padding = 3.0
 environment = SubResource("Environment_4cvuw")
 
 [node name="DirectionalLight3D2" type="DirectionalLight3D" parent="." index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 30, 30)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 73.3474, 66.1032, 68.6409)
+directional_shadow_max_distance = 457.0
 
 [node name="Controller" type="Node3D" parent="." index="2"]
 script = ExtResource("4_x3bmr")
 
-[node name="Window_Menu" type="Window" parent="." index="3"]
-auto_translate_mode = 1
-title = "Menu"
-initial_position = 1
-size = Vector2i(600, 300)
-script = ExtResource("2_wji7x")
+[node name="WriteAnnotation" parent="." index="3" instance=ExtResource("5_u5fu7")]
 
-[node name="MenuLoader" parent="Window_Menu" index="0" instance=ExtResource("3_r0k8h")]
-offset_right = 0.0
-offset_bottom = 0.0
+[node name="MenuLoader" parent="." index="4" instance=ExtResource("3_r0k8h")]
 
-[node name="WriteAnnotation" parent="." index="4" instance=ExtResource("5_u5fu7")]
+[node name="DirectionalLight3D3" type="DirectionalLight3D" parent="." index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -83.6138, 56.358, -85.3798)

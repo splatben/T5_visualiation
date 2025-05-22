@@ -1,6 +1,6 @@
 extends Node3D
 
-@export var MenuLoader := "../Window_Menu/MenuLoader"
+@export var MenuLoader := "../MenuLoader"
 
 var controller:Node
 var annotation = preload("res://material/Annotation/Annotation.tscn")
@@ -9,6 +9,7 @@ func _ready():
 	var Loader = get_node(MenuLoader+"/Button/FileDialog") # les bouton deroulant du menu
 	Loader.is_loaded.connect(_on_load)
 	GlobalScope.glasses_connected.connect(_on_glasses_connected,4)
+	GlobalScope.sceneT5 = self
 
 func _on_load(node:Node):
 	add_child(node,true)

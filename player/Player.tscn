@@ -17,7 +17,8 @@ visible_layers = 1023
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0.0162726, -0.7)
 screen_size = Vector2(0.75, 1)
 scene = ExtResource("4_06mnu")
-viewport_size = Vector2(300, 400)
+viewport_size = Vector2(318, 424)
+update_mode = 0
 
 [node name="T5-wand" parent="Origin/Wand_1" index="0" instance=ExtResource("3_h58on")]
 visible = false
