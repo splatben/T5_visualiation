@@ -37,7 +37,7 @@ func _load(file:String):
 	var nodePacked = load(file) #charger une scène qui n'est pas deja dans la scène 
 	if nodePacked == null:
 		load_failed.emit.call_deferred("no scene")
-		return ERR_FILE_NOT_FOUND;
+		return;
 	var node = nodePacked.instantiate()
 	add_static_body(node)
 	is_loaded.emit.call_deferred(node)
@@ -71,26 +71,47 @@ func _load_gltf(file:String,quiet : bool):
 				is_loaded.emit.call_deferred(gltf)
 			return gltf
 	else:
-		if !quiet:
-			load_failed.emit.call_deferred("Ereur au chargement :"+str(err))
-		return err
+		load_failed.emit.call_deferred("Ereur au chargement :"+str(err))
+		return ;
 
+
+func create_mesh(arrays:Array,pointCloud:bool)->MeshInstance3D:
+	var mesh = ArrayMesh.new()
+	
+	if(pointCloud):
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_POINTS, arrays)
+	else :
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		
+	# Création d'un ArrayMesh et ajout d'une surface avec les tableaux préparés
+	var mat = ORMMaterial3D.new()
+	mat.set_flag(BaseMaterial3D.FLAG_ALBEDO_FROM_VERTEX_COLOR,true)
+	mesh.surface_set_material(0,mat)
+	
+	var mesh_instance = MeshInstance3D.new()
+	mesh_instance.mesh = mesh
+	return mesh_instance
+
+func create_encapsulation(mesh_instance:MeshInstance3D,filePath:String):
+	add_static_body(mesh_instance)
+	mesh_instance.get_owner().set_meta("file",filePath)
+	mesh_instance.get_owner().name = filePath.get_slice("/",filePath.get_slice_count("/")-1).get_slice(".",0)
+	return mesh_instance.get_owner();
+	
 func _load_xyz(filePath:String, quiet:bool):
 	var points = PackedVector3Array()
 	var file = FileAccess.open(filePath, FileAccess.READ)
 	var ligne : String = file.get_line()
 	if(ligne == ""):
-		if !quiet:
-			load_failed.emit.call_deferred("Ereur au chargement :"+str(file.get_error()))
-		return file.get_error();
+		load_failed.emit.call_deferred("Ereur au chargement :"+str(file.get_error()))
+		return ;
 	while ligne != "":
 		if ligne[0] != "#" :
 			var pos = Vector3(0,0,0)
 			var array = ligne.split(" ",false)
 			if(len(array) != 3):
-				if !quiet:
-					load_failed.emit.call_deferred("ERR_FILE_CORRUPT")
-				return ERR_FILE_CORRUPT
+				load_failed.emit.call_deferred("ERR_FILE_CORRUPT")
+				return ;
 			pos.x = array[0].to_float()
 			pos.y = array[1].to_float()
 			pos.z = array[2].to_float()
@@ -98,108 +119,22 @@ func _load_xyz(filePath:String, quiet:bool):
 		ligne = file.get_line()
 	file.close()
 	# Create the ArrayMesh.
-	var arr_mesh = ArrayMesh.new()
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = points
-	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_POINTS, arrays)
 	
-	#Material for array mesh (1 surface)
-	var mat = ORMMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.use_point_size = true
-	mat.point_size = 3
-	mat.albedo_color = Color(0,0,0.5)# couleur normalizer
-	mat.set_flag(BaseMaterial3D.FLAG_ALBEDO_FROM_VERTEX_COLOR,true)
-	arr_mesh.surface_set_material(0,mat)
-	
-	var mesh_instance = MeshInstance3D.new()
-	mesh_instance.mesh = arr_mesh
-	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	
+	var mesh_instance = create_mesh(arrays,true)
 	#fini
-	add_static_body(mesh_instance)
-	mesh_instance.get_owner().set_meta("file",filePath)
-	mesh_instance.get_owner().name = filePath.get_slice("/",filePath.get_slice_count("/")-1).get_slice(".",0)
+	var owner_mesh = create_encapsulation(mesh_instance,filePath)
 	if !quiet:
-		is_loaded.emit.call_deferred(mesh_instance.get_owner())
-	return mesh_instance.get_owner();
+		is_loaded.emit.call_deferred(owner_mesh)
+	return owner_mesh;
 
-func _load_ply(filePath:String, quiet:bool):
-	var file = FileAccess.open(filePath, FileAccess.READ)
-	if file == null:
-		if !quiet:
-			load_failed.emit.call_deferred("Erreur au chargement :"+str(file.get_error()))
-		return file.get_error();
-	
-	var line = file.get_line()
-	# Vérification du header PLY
-	if line.strip_edges() != "ply":
-		if !quiet:
-			load_failed.emit.call_deferred(str("Ce fichier n’est pas un fichier PLY valide."))
-		return ERR_FILE_CORRUPT
-	
-	# Vérification que le format est ASCII
-	line = file.get_line()
-	if not line.strip_edges().begins_with("format ascii"):
-		if !quiet:
-			load_failed.emit.call_deferred("Seuls les fichiers PLY ASCII sont supportés.")
-		return ERR_FILE_CORRUPT
-	
-	line = file.get_line()
-	# Lecture de l'en-tête pour extraire le nombre de sommets et de faces
-	var vertex_count = 0
-	var face_count = 0
-	while line != "end_header":
-		if line.begins_with("element vertex"):
-			vertex_count = int(line.get_slice(" ",2))
-		elif line.begins_with("element face"):
-			face_count = int(line.get_slice(" ",2))
-		line = file.get_line()
-	if vertex_count == 0:
-		if !quiet:
-			load_failed.emit.call_deferred("ERR_FILE_CORRUPT")
-		return ERR_FILE_CORRUPT
-	
-	# Lecture des sommets et des couleurs.
-	# Chaque vertex doit contenir 6 valeurs : x, y, z, red, green, blue.
-	var vertices = PackedVector3Array()
-	var colors = PackedColorArray()
-	for i in range(vertex_count):
-		line = file.get_line()
-		line = line.split(" ")
-		if line.size() < 6:
-			return ERR_FILE_CORRUPT
-		var x = float(line[0])
-		var y = float(line[1])
-		var z = float(line[2])
-		vertices.append(Vector3(x, y, z))
-		# Conversion des couleurs de 0–255 vers 0.0–1.0
-		var r = float(line[3]) / 255.0
-		var g = float(line[4]) / 255.0
-		var b = float(line[5]) / 255.0
-		colors.append(Color(r, g, b))
-	
-	# Lecture des faces.
-	# Chaque face commence par le nombre de sommets suivi des indices des sommets.
-	var faces = []
-	for i in range(face_count):
-		line = file.get_line()
-		line = line.split(" ")
-		if line.size() < 4:
-			if !quiet:
-				load_failed.emit.call_deferred("ERR_FILE_CORRUPT")
-			return ERR_FILE_CORRUPT
-		# La première valeur indique le nombre de sommets dans la face
-		var n = int(line[0])
-		var face_indices = []
-		for j in range(n):
-			face_indices.append(int(line[j + 1]))
-		faces.append(face_indices)
-	file.close()
+func face_to_indices(faces:Array):
 	var indices = PackedInt32Array()
 	for face in faces:
 		if face.size() == 3:#cree un triangle
+			#ont crée deux triangle a la foi pour le backface culling
 			indices.append_array(face)
 			indices.append_array([face[2],face[1],face[1]])
 		elif face.size() > 3:#cree plusieur triangle avec pour "centre" le point 0 si plus de 3 point
@@ -210,41 +145,175 @@ func _load_ply(filePath:String, quiet:bool):
 				indices.append(face[j + 1])
 				indices.append(face[j])
 				indices.append(face[0])
-	# Préparation des tableaux pour ArrayMesh
+	return indices
+
+func data_to_arrays(vertices,indices,colors,normals,uv_mapping):
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_COLOR] = colors
-	arrays[Mesh.ARRAY_INDEX] = indices
-	# Création d'un ArrayMesh et ajout d'une surface avec les tableaux préparés
-	var mesh = ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		#var surftool = SurfaceTool.new() #couleur non fonctionnel
-		#surftool.begin(Mesh.PRIMITIVE_TRIANGLES)
-		#for i in range(vertices.size()):
-		#	surftool.add_vertex(vertices[i])
-		#	surftool.set_color(colors[i])
-		#for i in indices:
-		#	surftool.add_index(i)
-		#surftool.generate_normals()
-		#var mesh = surftool.commit()
-	#Material for array mesh (1 surface)
-	var mat = ORMMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.set_flag(BaseMaterial3D.FLAG_ALBEDO_FROM_VERTEX_COLOR,true)
-	mesh.surface_set_material(0,mat)
+	if !colors.is_empty():
+		arrays[Mesh.ARRAY_COLOR] = colors
+	if !indices.is_empty():
+		arrays[Mesh.ARRAY_INDEX] = indices
+	if !normals.is_empty():
+		arrays[Mesh.ARRAY_NORMAL] = normals
+	if !uv_mapping.is_empty():
+		arrays[Mesh.ARRAY_TEX_UV] = uv_mapping
+	return arrays
+
+func _read_ascii_ply(file:FileAccess,property:Array,vertex_count : int,face_count :int) :
+	var faces = []
+	var vertices = PackedVector3Array()
+	var colors = PackedColorArray()
+	var normals = PackedVector3Array()
+	var uv_mapping = PackedVector2Array()
+	var line :String
+	for i in range(vertex_count):
+		line = file.get_line()
+		var parts = line.split(" ")
+		var data = {"nx":null,"ny":null,"nz":null,"red" : null, "green" : null,
+		 "blue" : null,"alpha":null,"radius":null,"s":null,"t":null}
+		for j in range(len(property)-1):
+			data[property[j]] = float(parts[j])
+		#est toujours present
+		vertices.append(Vector3(data["x"],data["y"],data["z"]))
+		#donnée optionnel
+		if data["nx"] != null and data["ny"] != null and data["nz"] != null:
+			normals.append(Vector3(data["nx"],data["ny"],data["nz"]))
+		if data["red"] != null and data["green"] != null and data["blue"] != null:
+			if(data["alpha"] != null):
+				colors.append(Color(data["red"]/255,data["green"]/255,data["blue"]/255,data["alpha"]/255))
+			else:
+				colors.append(Color(data["red"]/255,data["green"]/255,data["blue"]/255))
+		if(data["s"] != null and data["t"] != null):
+			uv_mapping.append(Vector2(data["s"],data["t"]))
+
+	# Lecture des faces.
+	for i in range(face_count):
+		line = file.get_line()
+		var parts = line.split(" ")
+		if parts.size() < 4:
+			load_failed.emit.call_deferred("ERR_FILE_CORRUPT")
+			return [];
+		# La première valeur indique le nombre de sommets dans la face
+		var n = int(parts[0])
+		var face_indices = []
+		for j in range(n):
+			face_indices.append(int(parts[j + 1]))
+		faces.append(face_indices)
+	return data_to_arrays(vertices,face_to_indices(faces),colors,normals,uv_mapping)
+
+func read_for_type(file,type):
+	match type:
+				"char","int8","uchar","uint8":
+					return file.get_8()
+				"short","int16","ushort","uint16":
+					return file.get_16()
+				"int","int32","uint","uint32":
+					return file.get_32()
+				"float","float32":
+					return file.get_float()
+				"double","float64":
+					return file.get_double()
+
+func _read_binary_ply(file:FileAccess,property:Array,property_type:Array,face_type :Array,vertex_count : int,face_count :int):
+	var faces = []
+	var vertices = PackedVector3Array()
+	var colors = PackedColorArray()
+	var normals = PackedVector3Array()
+	var uv_mapping = PackedVector2Array()
+
+	for i in range(vertex_count):
+		var data = {"nx":null,"ny":null,"nz":null,"red" : null, "green" : null,
+		 "blue" : null,"alpha":null,"radius":null,"s":null,"t":null}
+		for j in range(property.size()):
+			data[property[j]] = read_for_type(file,property_type[j])
+		#est toujours present
+		vertices.append(Vector3(data["x"],data["y"],data["z"]))
+		#donnée optionnel
+		if data["nx"] != null and data["ny"] != null and data["nz"] != null:
+			normals.append(Vector3(data["nx"],data["ny"],data["nz"]))
+		if data["red"] != null and data["green"] != null and data["blue"] != null:
+			if(data["alpha"] != null):
+				colors.append(Color(data["red"]/255,data["green"]/255,data["blue"]/255,data["alpha"]/255))
+			else:
+				colors.append(Color(data["red"]/255,data["green"]/255,data["blue"]/255))
+		if(data["s"] != null and data["t"] != null):
+			uv_mapping.append(Vector2(data["s"],data["t"]))
+
+	# Lecture des faces.
+	for i in range(face_count):
+		var n = read_for_type(file,face_type[0])
+		var face_indices = []
+		for j in range(n):
+			face_indices.append(read_for_type(file,face_type[1]))
+		faces.append(face_indices)
+	return data_to_arrays(vertices,face_to_indices(faces),colors,normals,uv_mapping)
+
+
+func _load_ply(filePath:String, quiet:bool):
+	var file = FileAccess.open(filePath, FileAccess.READ)
+	var is_ascii := true #else binary
+	var line : String
+	var vertex_count := 0
+	var face_count := 0
+	var property := []
+	var property_type := []
+	var arrays := []
+	var face_type = []
 	
-	var mesh_instance = MeshInstance3D.new()
-	mesh_instance.mesh = mesh
-	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	if file == null:
+		load_failed.emit.call_deferred("Erreur au chargement :"+str(file.get_error()))
+		return;
 	
-	#fini
-	add_static_body(mesh_instance)
-	mesh_instance.get_owner().set_meta("file",filePath)
-	mesh_instance.get_owner().name = filePath.get_slice("/",filePath.get_slice_count("/")-1).get_slice(".",0)
+	if file.get_line().strip_edges() != "ply":# Vérification du header PLY
+		load_failed.emit.call_deferred("Ce fichier n’est pas un fichier PLY valide.")
+		return ;
+	
+	# Vérification que le format est ASCII
+	line = file.get_line()
+	if not line.strip_edges().begins_with("format ascii"):
+		if line.strip_edges().begins_with("format binary_little_endian 1.0"):
+			is_ascii = false
+		else : 
+			load_failed.emit.call_deferred("format inconnu : " + line.strip_edges())
+			return ;
+	
+	line = file.get_line()
+	# Lecture de l'en-tête pour extraire le nombre de sommets et de faces
+	while line != "end_header":
+		if line.begins_with("element vertex"):
+			vertex_count = int(line.get_slice(" ",2))
+		elif line.begins_with("element face"):
+			face_count = int(line.get_slice(" ",2))
+			line = file.get_line()
+			face_type.append(line.get_slice(" ",2))
+			face_type.append(line.get_slice(" ",3))
+		elif line.begins_with("property") && ! line.begins_with("property list"): 
+			property.append(line.get_slice(" ",2))
+			if(!is_ascii):
+				property_type.append(line.get_slice(" ",1))
+		line = file.get_line()
+	
+	if vertex_count == 0 or property.size() < 3:
+		load_failed.emit.call_deferred("no vertex")
+		return ;
+	
+	# Lecture des sommets.
+	if(is_ascii):
+		arrays = _read_ascii_ply(file,property,vertex_count,face_count)
+	else:
+		arrays = _read_binary_ply(file,property,property_type,face_type,vertex_count,face_count)
+	if arrays == []:
+		return;
+	file.close()
+	arrays.resize(Mesh.ARRAY_MAX)
+	
+	var mesh_instance = create_mesh(arrays,face_count==0)
+	var owner_mesh = create_encapsulation(mesh_instance,filePath)
 	if !quiet:
-		is_loaded.emit.call_deferred(mesh_instance.get_owner())
-	return mesh_instance.get_owner();
+		is_loaded.emit.call_deferred(owner_mesh)
+	return owner_mesh
 
 func _load_data(filePath:String):
 	var file = FileAccess.open(filePath, FileAccess.READ)
@@ -265,8 +334,10 @@ func _load_data(filePath:String):
 			node = _load_xyz(data_node["file"],true)
 		elif(ext == "ply"):
 			node = _load_ply(data_node["file"],true)
+		else :
+			load_failed.emit.call_deferred("bad extension")
+			return;
 		if(node == null):
-			load_failed.emit.call_deferred("no object file")
 			return;
 		var body = node.get_child(0)
 		body.set_position(Vector3(data_node["position"].x,data_node["position"].y,data_node["position"].z))
