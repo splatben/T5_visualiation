@@ -59,7 +59,8 @@ var _is_grabbed = false
 
 #pouvoir changer de parent une annotation
 var _node_locked : Node3D
-var outline_node : MeshInstance3D = null
+var outline_node : MeshInstance3D = MeshInstance3D.new()
+var outline_node_parent :MeshInstance3D = null
 
 #pourvoir changer la face d'un annotation
 var reverse : bool
@@ -80,6 +81,14 @@ func _ready() -> void:
 	_pointer.pointer_entered.connect(on_pointer_entered)
 	_pointer.pointer_exited.connect(on_pointer_exited)
 	GlobalScope.glasses_connected.emit()
+	var shape = BoxShape3D.new()
+	shape.extents= Vector3(0.46,0.21,0.03)
+	outline_node.mesh = shape.get_debug_mesh()
+	
+	var material = StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color.AQUA
+	outline_node.mesh.surface_set_material(0,material)
 
 func on_pointer_move(_target : Node3D, from_pos : Vector3, to_pos : Vector3) -> void :
 	if(from_pos != to_pos):
@@ -161,7 +170,7 @@ func _on_button_pressed(p_name : String) -> void:
 				else :
 					new_comment.emit.call_deferred(_pos,_node_pointed)
 		lock:
-			if _node_pointed != null:
+			if _node_pointed != null and _node_pointed.is_in_group("Annotation"):
 				if _node_locked != null:
 					if _node_locked != _node_pointed:
 						remove_outline(_node_locked)
@@ -204,12 +213,12 @@ func _physics_process(_delta):
 		_is_grabbed = false
 
 func add_outline(body: Node) -> void:
-	if outline_node != null:
-		print("outline node")
+	if outline_node_parent != null:
+		print("outline deja fait")
 		return
-	var coll_shape = body.get_node("CollisionShape3D")
+	var coll_shape = body.get_parent().get_parent().get_node("CollisionShape3D")
 	if coll_shape == null:
-		print("Aucun CollisionShape3D trouvé dans ", body.name)
+		print("Aucun CollisionShape3D trouvé dans ", body.get_parent().get_parent().get_parent().name)
 		return;
 	if(_thread):
 		if(_thread.is_alive()):
@@ -217,21 +226,23 @@ func add_outline(body: Node) -> void:
 		else:
 			_thread.wait_to_finish()
 	_thread = Thread.new()
-	_thread.start(calculate_outline.bind(coll_shape.shape,body))
+	_thread.start(calculate_outline.bind(coll_shape.shape,body.get_parent().get_parent()))
 
 func remove_outline(body: Node) -> void:
-	if outline_node != null and outline_node.get_parent() == body:
-		outline_node.queue_free()
-		outline_node = null
+	if outline_node_parent != null and outline_node.get_parent() == body:
+		body.remove_child(outline_node)
+		outline_node_parent.get_parent().remove_child(outline_node_parent)
+		outline_node_parent.queue_free()
+		outline_node_parent = null
 
 func calculate_outline(shape:Shape3D,body:StaticBody3D):
-	outline_node = MeshInstance3D.new()
-	outline_node.mesh = shape.get_debug_mesh()
+	outline_node_parent = MeshInstance3D.new()
+	outline_node_parent.mesh = shape.get_debug_mesh()
 	
 	var material = StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.albedo_color = Color.AQUA
-	outline_node.mesh.surface_set_material(0,material)
+	material.albedo_color = Color.RED
+	outline_node_parent.mesh.surface_set_material(0,material)
 	body.add_child.call_deferred(outline_node)
 
 func _exit_tree() -> void:

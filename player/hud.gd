@@ -1,7 +1,6 @@
 extends Node
 
 var _origin : T5Origin3D
-var _affichage_zoom : Label
 
 var _enum_to_text:Dictionary ={
 	Wand_Control.Wand_button.A:"a",
@@ -25,7 +24,6 @@ func _find_origin():
 
 func _ready():
 	_find_origin()
-	_affichage_zoom = get_node("Label16")
 	_origin.ready.connect(_on_parent_ready,4)
 
 func _on_parent_ready():
@@ -42,7 +40,3 @@ func _on_parent_ready():
 	boutton_reinitialisation.text = _enum_to_text[controller.reinitialisation]
 	boutton_annotation.text = _enum_to_text[controller.ajouter_modifier_annotation]
 	boutton_annotation_edit.text = _enum_to_text[controller.ajouter_modifier_annotation]
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	_affichage_zoom.text = str(_origin.gameboard_scale)

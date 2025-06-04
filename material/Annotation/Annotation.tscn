@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://bm1ags6dq1sv2" path="res://material/Annotation/texte.tscn" id="5_bbbxp"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4k2ue"]
-size = Vector3(0.698594, 0.327001, 0.0287252)
+size = Vector3(0.466152, 0.210657, 0.0287252)
 
 [node name="annotation" type="Node3D" groups=["Annotation"]]
 script = ExtResource("1_tw16d")
@@ -17,11 +17,11 @@ rotation_edit_mode = 1
 collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.999999, -0.00325195, -0.00404674, 0)
 shape = SubResource("BoxShape3D_4k2ue")
 
 [node name="Node3D" type="Node3D" parent="StaticBody3D"]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 
 [node name="pointeur_bulle" parent="StaticBody3D/Node3D" instance=ExtResource("2_kmk67")]
 transform = Transform3D(0.6, 0, 0, 0, -8.74227e-09, -0.600001, 0, 0.2, -2.62269e-08, -1.037, 0.044, -0.0218727)
