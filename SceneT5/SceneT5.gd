@@ -19,13 +19,16 @@ func _on_glasses_connected():
 	controller.new_comment.connect(_on_new_comment)
 
 func _on_new_comment(pos:Vector3,parent:Node3D):
+	if parent.is_in_group("Annotation"):
+		return;
 	var node = annotation.instantiate()
 	parent.add_child(node,true)
 	node.add_to_group("Annotation",true)
 	var body = node.get_child(0)
 	body.set_global_position(pos)
-	body.axis_lock_linear_z = true
-	body.axis_lock_linear_y = true
-	body.axis_lock_linear_x = true
-	GlobalScope.new_comment.emit(node)
+	var scale = controller._origin.gameboard_scale/3
+	body.set_scale(Vector3(scale,scale,scale))
+	body.scale_object_local(Vector3(pow(parent.scale.x,-1),pow(parent.scale.y,-1),pow(parent.scale.z,-1)))
+	body.look_at(controller.get_parent().get_parent().global_rotation)
+	GlobalScope.new_comment.emit(node)#pour etre ajouter a la liste de supression 
 	controller.edit.emit(node)

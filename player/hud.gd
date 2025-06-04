@@ -40,8 +40,8 @@ func _on_parent_ready():
 	boutton_dezoom.text = _enum_to_text[controller.dezoom]
 	boutton_lock.text = _enum_to_text[controller.lock]
 	boutton_reinitialisation.text = _enum_to_text[controller.reinitialisation]
-	boutton_annotation.text = _enum_to_text[controller.ajouter_annotation]
-	boutton_annotation_edit.text = _enum_to_text[controller.edit_annotation]
+	boutton_annotation.text = _enum_to_text[controller.ajouter_modifier_annotation]
+	boutton_annotation_edit.text = _enum_to_text[controller.ajouter_modifier_annotation]
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):

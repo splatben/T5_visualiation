@@ -10,8 +10,8 @@ var text1:Node
 var text2:Node
 
 func _ready():
-	text1 = get_node("StaticBody3D/Viewport2Din3D").get_scene_instance()
-	text2 = get_node("StaticBody3D/Viewport2Din3D2").get_scene_instance()
+	text1 = get_node("StaticBody3D/Node3D/Viewport2Din3D").get_scene_instance()
+	text2 = get_node("StaticBody3D/Node3D/Viewport2Din3D2").get_scene_instance()
 	print_text()
 	print_police()
 

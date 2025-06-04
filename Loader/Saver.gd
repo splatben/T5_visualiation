@@ -49,7 +49,6 @@ func _save_annotation(scene : Node3D, path : String):
 		for child in body.get_children():
 			if child.is_in_group("Annotation"):
 				var body2 = child.get_child(0)
-				print(body2.get_position())
 				var data_ann = {
 				"text":child.get_text(),
 				"police":child.get_police(),
@@ -74,6 +73,7 @@ func _save_annotation(scene : Node3D, path : String):
 				}
 				data_node["annotations"].append(data_ann)
 		nodes.append(data_node)
-	file.store_var(nodes)
+	var json = JSON.stringify(nodes,"\t")
+	file.store_string(json)
 	file.close()
 	is_saved.emit.call_deferred()

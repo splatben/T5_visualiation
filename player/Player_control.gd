@@ -7,8 +7,7 @@ extends Node
 @export var dezoom : Wand_button = Wand_button.Y
 @export var lock : Wand_button = Wand_button.X
 @export var reinitialisation : Wand_button = Wand_button._1
-@export var ajouter_annotation : Wand_button = Wand_button._2
-@export var edit_annotation : Wand_button = Wand_button.STICK
+@export var ajouter_modifier_annotation : Wand_button = Wand_button.STICK
 @export var menu : Wand_button = Wand_button.B
 @export var boutton_saisie: Wand_button = Wand_button.GACHETTE
 
@@ -47,6 +46,7 @@ var _node_pointed : PhysicsBody3D
 var _origin : T5Origin3D
 var _wand : T5Controller3D
 var _menu : Node
+var _thread : Thread
 
 #Deplacement voir _on_pointer_move() && _on_stick_move()
 var _pos : Vector3
@@ -56,6 +56,14 @@ var _distance_obj : float
 #Rotation voir _on_stick_move() && physics_process()
 var _initial_grab_rotation: Quaternion  # Stocke la rotation au moment de la saisie
 var _is_grabbed = false
+
+#pouvoir changer de parent une annotation
+var _node_locked : Node3D
+var outline_node : MeshInstance3D = null
+
+#pourvoir changer la face d'un annotation
+var reverse : bool
+var changed : bool
 
 signal new_comment(pos:Vector3,node:Node3D)
 signal edit(comment:Node3D)
@@ -101,11 +109,21 @@ func _on_stick_move(_name: String, value: Vector2) -> void :
 				_distance_obj -= length_pointeur_step-1.0
 		#pouvoir rotate sur l'axe des y avec le stick c'est plus simple
 		if value.x > 0.5: 
+			if _pointer._locked_target.is_in_group("Annotation") && changed:
+				reverse= !reverse
+				changed = false
+				return ;
 			_is_grabbed = false #eviter conflict avec physics_proccess
 			_pointer._locked_target.rotate_y(0.1) 
 		elif value.x < -0.5:
+			if _pointer._locked_target.is_in_group("Annotation") && changed:
+				reverse= !reverse
+				changed = false
+				return ;
 			_is_grabbed = false
 			_pointer._locked_target.rotate_y(-0.1)
+		else : 
+			changed = true
 	else:
 		#pouvoir agrandir ou reduire la taille du pointeur
 		if  value.y > 0.25:
@@ -136,17 +154,25 @@ func _on_button_pressed(p_name : String) -> void:
 			if (_last_node != null):
 				_last_node.set_rotation(Vector3(0,0,0))
 				_last_node.move_and_collide(-_last_node.get_position())
-		ajouter_annotation:
+		ajouter_modifier_annotation:
 			if _node_pointed != null:
-				new_comment.emit.call_deferred(_pos,_node_pointed)
-		edit_annotation:
-			if _node_pointed != null:
-				edit.emit.call_deferred(_node_pointed.get_parent())
+				if _node_pointed.is_in_group("Annotation"):
+					edit.emit.call_deferred(_node_pointed.get_parent())
+				else :
+					new_comment.emit.call_deferred(_pos,_node_pointed)
 		lock:
-			if _node_pointed != null && _node_pointed is PhysicsBody3D:
-				_node_pointed.axis_lock_linear_z = !_node_pointed.axis_lock_linear_z
-				_node_pointed.axis_lock_linear_y = !_node_pointed.axis_lock_linear_y
-				_node_pointed.axis_lock_linear_x = !_node_pointed.axis_lock_linear_x
+			if _node_pointed != null:
+				if _node_locked != null:
+					if _node_locked != _node_pointed:
+						remove_outline(_node_locked)
+						_node_locked = _node_pointed
+						add_outline(_node_locked)
+					else:
+						remove_outline(_node_locked)
+						_node_locked = null
+				else:
+					_node_locked = _node_pointed
+					add_outline(_node_locked)
 		menu:
 			_menu.visible = !_menu.visible
 
@@ -159,17 +185,55 @@ func on_pointer_entered(target : Node3D, _at:Vector3)->void:
 func on_pointer_exited(_target : Node3D, _at:Vector3)->void:
 	_node_pointed = null
 
-func _physics_process(_delta):
-	#if _pointer._locked_target != null:
-	#	var rotation_change = _rotation_precedente.inverse() * wand.quaternion  # Différence de rotation
-	#	_pointer._locked_target.quaternion = _pointer._locked_target.quaternion.slerp(_pointer._locked_target.quaternion * rotation_change, 1)
-	#_rotation_precedente = wand.quaternion 
-	if _pointer._locked_target != null:
-		if not _is_grabbed:  # Détecte la première saisie
-			_is_grabbed = true
-			_initial_grab_rotation = _wand.quaternion.inverse() * _pointer._locked_target.quaternion
 
-		var rotation_change = _wand.quaternion * _initial_grab_rotation
-		_pointer._locked_target.quaternion = _pointer._locked_target.quaternion.slerp(rotation_change, 1)
+func _physics_process(_delta):
+	if _pointer._locked_target != null :
+		if  !_pointer._locked_target.is_in_group("Annotation"):
+			if not _is_grabbed:  # Détecte la première saisie
+				_is_grabbed = true
+				#if _pointer._locked_target.is_in_group("Annotation"):
+				#	_initial_grab_rotation = _wand.quaternion.inverse() *_pointer._locked_target.quaternion#difference objet modifier et baton
+				#else :
+				_initial_grab_rotation = _wand.quaternion.inverse() * _pointer._locked_target.quaternion#difference objet modifier et baton
+
+			var rotation_change = _wand.quaternion * _initial_grab_rotation#ajout de la rotation du baton a la rotation d'un objet
+			_pointer._locked_target.quaternion = _pointer._locked_target.quaternion.slerp(rotation_change, 1)
+		else :
+			_pointer._locked_target.look_at(_wand.global_position,Vector3(0,1,0),reverse);# fonctionnne mais manque de possibilité pour le faire tourner sur lui meme 
 	else:
 		_is_grabbed = false
+
+func add_outline(body: Node) -> void:
+	if outline_node != null:
+		print("outline node")
+		return
+	var coll_shape = body.get_node("CollisionShape3D")
+	if coll_shape == null:
+		print("Aucun CollisionShape3D trouvé dans ", body.name)
+		return;
+	if(_thread):
+		if(_thread.is_alive()):
+			return;
+		else:
+			_thread.wait_to_finish()
+	_thread = Thread.new()
+	_thread.start(calculate_outline.bind(coll_shape.shape,body))
+
+func remove_outline(body: Node) -> void:
+	if outline_node != null and outline_node.get_parent() == body:
+		outline_node.queue_free()
+		outline_node = null
+
+func calculate_outline(shape:Shape3D,body:StaticBody3D):
+	outline_node = MeshInstance3D.new()
+	outline_node.mesh = shape.get_debug_mesh()
+	
+	var material = StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color.AQUA
+	outline_node.mesh.surface_set_material(0,material)
+	body.add_child.call_deferred(outline_node)
+
+func _exit_tree() -> void:
+	if(_thread):
+		_thread.wait_to_finish()
