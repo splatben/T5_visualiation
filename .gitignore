@@ -3,7 +3,6 @@
 /android/
 #fichier volumineux 
 *.obj*
-*.glb*
 *.mtl*
 *.gltf*
 *.ply*
