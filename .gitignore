@@ -6,9 +6,11 @@
 *.glb*
 *.mtl*
 *.gltf*
+*.ply*
+*fox*
+*Fox*
 #repertoire spécifique
-Champignon/
-jovin/
-nuagePoint/
-fox/
-ply/
+*Champignon/
+*jovin/
+*nuagePoint/
+*ply/

@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://ivw3thn8bdqt" path="res://Loader/Saver.gd" id="4_pf47n"]
 [ext_resource type="Script" uid="uid://cepp2jjto8jlr" path="res://Loader/print_error.gd" id="4_vghfb"]
 
-[node name="Window_Menu" type="Window"]
+[node name="MenuLoader" type="Window"]
 auto_translate_mode = 1
 title = "Menu"
 initial_position = 1

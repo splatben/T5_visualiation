@@ -7,9 +7,11 @@ signal load_ann(ann:Node3D)
 var _annotation = preload("res://material/Annotation/Annotation.tscn")
 var _thread:Thread
 
+#appeler la première fois que le noeuds rentre dans l'arbr 
 func _ready():
 	self.file_selected.connect(_on_file_selected)
 
+#apele les fonction de chargement en multi_threading pour eviter les freezes
 func _on_file_selected(file:String):
 	if(_thread):
 		if(_thread.is_alive()):
@@ -35,8 +37,9 @@ func _on_file_selected(file:String):
 		load_failed.emit("mauvaise extension")
 	hide()
 
+#charge un .tscn
 func _load(file:String):
-	var nodePacked = load(file) #charger une scène qui n'est pas deja dans la scène 
+	var nodePacked = load(file) 
 	if nodePacked == null:
 		load_failed.emit.call_deferred("no scene")
 		return;
@@ -76,6 +79,7 @@ func _load_gltf(file:String,quiet : bool):
 		load_failed.emit.call_deferred("Ereur au chargement :"+str(err))
 		return ;
 
+#l'encapsulation consiste a save le chemin du fichier ajouter les colisions et un noms correspondant au nom de fichier le noeuds
 func create_encapsulation(mesh_instance:MeshInstance3D,filePath:String):
 	add_static_body(mesh_instance)
 	mesh_instance.get_owner().set_meta("file",filePath)

@@ -8,7 +8,7 @@ var annotation = preload("res://material/Annotation/Annotation.tscn")
 func _ready():
 	var Loader = get_node(MenuLoader+"/Button/FileDialog") # les bouton deroulant du menu
 	Loader.is_loaded.connect(_on_load)
-	GlobalScope.glasses_connected.connect(_on_glasses_connected,4)
+	GlobalScope.glasses_connected.connect(_on_glasses_connected)
 	GlobalScope.sceneT5 = self
 
 func _on_load(node:Node):
@@ -26,8 +26,8 @@ func _on_new_comment(pos:Vector3,parent:Node3D):
 	node.add_to_group("Annotation",true)
 	var body = node.get_child(0)
 	body.set_global_position(pos)
-	var scale = controller._origin.gameboard_scale/3
-	body.set_scale(Vector3(scale,scale,scale))
+	var _scale = controller._origin.gameboard_scale/3
+	body.set_scale(Vector3(_scale,_scale,_scale))
 	body.scale_object_local(Vector3(pow(parent.scale.x,-1),pow(parent.scale.y,-1),pow(parent.scale.z,-1)))
 	body.look_at(controller.get_parent().get_parent().global_rotation)
 	GlobalScope.new_comment.emit(node)#pour etre ajouter a la liste de supression 

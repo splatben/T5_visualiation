@@ -10,15 +10,16 @@
 
 [node name="Player" instance=ExtResource("1_83hs8")]
 visible_layers = 1023
+player_number = 1
 
 [node name="T5-glasses" parent="Origin/Camera" index="0" instance=ExtResource("2_5yrwf")]
 
 [node name="Viewport2Din3D" parent="Origin/Camera/T5-glasses" index="1" instance=ExtResource("3_gskgj")]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0.0162726, -0.472247)
-screen_size = Vector2(1, 1)
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0.0759042, -0.546974)
+screen_size = Vector2(1.2, 1)
 collision_layer = 0
 scene = ExtResource("4_06mnu")
-viewport_size = Vector2(450, 450)
+viewport_size = Vector2(530, 450)
 update_mode = 0
 
 [node name="T5-wand" parent="Origin/Wand_1" index="0" instance=ExtResource("3_h58on")]

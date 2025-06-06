@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://bsn1sd86p2h30" path="res://addons/tiltfive_tools/staging/staging.tscn" id="1_glv2v"]
 [ext_resource type="PackedScene" uid="uid://cmmokn2ngppcd" path="res://player/Player.tscn" id="2_uu6xs"]
-[ext_resource type="PackedScene" uid="uid://cy1vbgijgvfb0" path="res://addons/tiltfive_tools/objects/spectator_camera.tscn" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://ck5h23qvejdvt" path="res://addons/tiltfive_tools/objects/spectator_camera.gd" id="3_2j6u4"]
 
 [node name="Main" instance=ExtResource("1_glv2v")]
 start_scene = "uid://bllf2pnpcc8bl"
@@ -14,12 +14,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.0172644)
 glasses_scene = ExtResource("2_uu6xs")
 start_location = NodePath("../T5Gameboard")
 
-[node name="SpectatorCamera" parent="." index="3" instance=ExtResource("4_1bvp3")]
-transform = Transform3D(1, 0, 0, 0, 0.925362, 0.379085, 0, -0.379085, 0.925362, 0.00998652, 1.02574, 1.90395)
-vertical = 1.5
-horizontal = 3.0
-
-[node name="T5Gameboard" type="T5Gameboard" parent="." index="4"]
+[node name="T5Gameboard" type="T5Gameboard" parent="." index="3"]
 content_scale = 3.0
 gameboard_type = "XE"
 layers = 1023
+
+[node name="T5ToolsSpectatorCamera" type="Camera3D" parent="." index="4"]
+transform = Transform3D(0.999371, 0.00179912, 0.0354295, -0.0184845, 0.878834, 0.47677, -0.0302788, -0.477125, 0.878314, 0, 2.10802, 3.20799)
+doppler_tracking = 1
+current = true
+script = ExtResource("3_2j6u4")
+vertical = 2.0
+horizontal = 3.0
+metadata/_custom_type_script = "uid://ck5h23qvejdvt"

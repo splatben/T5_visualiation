@@ -10,8 +10,8 @@ default_font_size = 20
 [node name="HUD" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 450.0
-offset_bottom = 450.0
+offset_right = 537.0
+offset_bottom = 449.0
 script = ExtResource("1_2mhk3")
 metadata/_edit_horizontal_guides_ = [0.0]
 
@@ -20,6 +20,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_right = -7.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_6lbh3")
@@ -30,9 +32,9 @@ patch_margin_bottom = 10
 
 [node name="RichTextLabel2" type="RichTextLabel" parent="."]
 layout_mode = 1
-offset_left = 9.0
+offset_left = 51.0
 offset_top = 3.0
-offset_right = 433.0
+offset_right = 475.0
 offset_bottom = 53.0
 theme = SubResource("Theme_noril")
 bbcode_enabled = true
@@ -44,94 +46,94 @@ vertical_alignment = 1
 [node name="Label" type="Label" parent="."]
 clip_contents = true
 layout_mode = 1
-offset_left = 14.0
-offset_top = 93.0
-offset_right = 219.0
-offset_bottom = 142.0
-text = "réinitialiser position et
+offset_left = 13.0
+offset_top = 104.0
+offset_right = 218.0
+offset_bottom = 153.0
+text = "Réinitialiser position et
  rotation du dernier objet :"
 
 [node name="Label2" type="Label" parent="."]
 clip_contents = true
 layout_mode = 1
 offset_left = 13.0
-offset_top = 284.0
+offset_top = 275.0
 offset_right = 181.0
-offset_bottom = 307.0
+offset_bottom = 298.0
 text = "Modifier annotation : "
 
 [node name="Label3" type="Label" parent="."]
 clip_contents = true
 layout_mode = 1
 offset_left = 12.0
-offset_top = 262.0
+offset_top = 253.0
 offset_right = 172.0
-offset_bottom = 285.0
+offset_bottom = 276.0
 text = "Ajouter annotation : "
 
 [node name="Label4" type="Label" parent="."]
 clip_contents = true
 layout_mode = 1
 offset_left = 10.0
-offset_top = 178.0
+offset_top = 192.0
 offset_right = 174.0
-offset_bottom = 202.0
+offset_bottom = 216.0
 text = "Boutton pour zoom : "
 
 [node name="Label5" type="Label" parent="."]
 layout_mode = 1
 offset_left = 11.0
-offset_top = 203.0
+offset_top = 216.0
 offset_right = 194.0
-offset_bottom = 226.0
+offset_bottom = 239.0
 text = "Boutton pour dezoom : "
 
 [node name="Label6" type="Label" parent="."]
 layout_mode = 1
-offset_left = 14.0
-offset_top = 340.0
-offset_right = 209.0
-offset_bottom = 363.0
-text = "Selectionner annotation: "
+offset_left = 15.0
+offset_top = 347.0
+offset_right = 210.0
+offset_bottom = 370.0
+text = "Séléctionner annotation: "
 
 [node name="Label7" type="Label" parent="."]
 layout_mode = 1
-offset_left = 225.0
-offset_top = 120.0
-offset_right = 235.0
-offset_bottom = 143.0
+offset_left = 224.0
+offset_top = 131.0
+offset_right = 234.0
+offset_bottom = 154.0
 text = "1"
 
 [node name="Label8" type="Label" parent="."]
 layout_mode = 1
-offset_left = 184.0
-offset_top = 284.0
-offset_right = 259.466
-offset_bottom = 313.294
+offset_left = 183.0
+offset_top = 275.0
+offset_right = 258.0
+offset_bottom = 298.0
 text = "stick click"
 
 [node name="Label9" type="Label" parent="."]
 layout_mode = 1
-offset_left = 174.0
-offset_top = 262.0
-offset_right = 248.0
-offset_bottom = 291.294
+offset_left = 175.0
+offset_top = 253.0
+offset_right = 249.0
+offset_bottom = 276.0
 text = "stick click"
 
 [node name="Label10" type="Label" parent="."]
 layout_mode = 1
 offset_left = 179.0
-offset_top = 178.0
+offset_top = 192.0
 offset_right = 189.0
-offset_bottom = 201.0
+offset_bottom = 215.0
 text = "a"
 
 [node name="Label11" type="Label" parent="."]
 layout_mode = 1
 offset_left = 199.0
-offset_top = 201.0
+offset_top = 214.0
 offset_right = 208.0
-offset_bottom = 224.0
+offset_bottom = 237.0
 text = "y"
 
 [node name="Label12" type="Label" parent="."]
@@ -139,25 +141,25 @@ layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 0.033
 offset_left = 212.0
-offset_top = 340.0
+offset_top = 347.0
 offset_right = 221.0
-offset_bottom = 348.15
+offset_bottom = 355.183
 text = "x"
 
 [node name="Label13" type="Label" parent="."]
 layout_mode = 1
-offset_left = 13.0
-offset_top = 67.0
-offset_right = 136.0
-offset_bottom = 90.0
+offset_left = 12.0
+offset_top = 80.0
+offset_right = 135.0
+offset_bottom = 103.0
 text = "Saisir un objet : "
 
 [node name="Label14" type="Label" parent="."]
 layout_mode = 1
-offset_left = 142.0
-offset_top = 66.0
-offset_right = 210.0
-offset_bottom = 95.0708
+offset_left = 137.0
+offset_top = 80.0
+offset_right = 205.0
+offset_bottom = 103.0
 text = "gâchette"
 
 [node name="Label17" type="Label" parent="."]
@@ -166,7 +168,7 @@ offset_left = 12.0
 offset_top = 411.0
 offset_right = 215.0
 offset_bottom = 434.0
-text = "fermer et ouvrir ce menu :"
+text = "Fermer et ouvrir ce menu :"
 
 [node name="Label18" type="Label" parent="."]
 layout_mode = 1
@@ -181,28 +183,20 @@ text = "b"
 
 [node name="RichTextLabel" type="RichTextLabel" parent="."]
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.00625
-anchor_top = 0.1425
-anchor_right = 0.00625
-anchor_bottom = 0.1425
-offset_left = 237.238
-offset_top = 109.867
-offset_right = 423.237
-offset_bottom = 169.867
+offset_left = 239.0
+offset_top = 195.0
+offset_right = 522.0
+offset_bottom = 237.0
 theme = ExtResource("3_2tfq1")
 bbcode_enabled = true
 text = "[i]Si aucun objet est pointée le zoom s'appliquera à l'ensemble de la sène "
 
 [node name="RichTextLabel3" type="RichTextLabel" parent="."]
 layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.284265
-anchor_bottom = 0.284265
-offset_left = 275.0
-offset_top = 117.05
-offset_right = 425.0
-offset_bottom = 197.05
+offset_left = 266.0
+offset_top = 256.0
+offset_right = 512.0
+offset_bottom = 296.0
 theme = ExtResource("3_2tfq1")
 bbcode_enabled = true
 text = "[i]Ajoute une annotation a l'objet pointé qui en devient donc le parent"
@@ -211,49 +205,20 @@ scroll_active = false
 
 [node name="RichTextLabel4" type="RichTextLabel" parent="."]
 layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.284265
-anchor_bottom = 0.284265
-offset_left = 266.0
-offset_top = 210.081
-offset_right = 442.0
-offset_bottom = 272.081
+offset_left = 244.0
+offset_top = 311.0
+offset_right = 518.0
+offset_bottom = 415.0
 theme = ExtResource("3_2tfq1")
 bbcode_enabled = true
-text = "[i]Affiche l'objet parent en rouge et l'annotation séléctionner en bleu"
+text = "[i]Affiche l'objet parent en rouge et l'annotation sélectionnée en bleu, cliquer de nouveau en pointant le nouveau propriétaire, ou sur l'annotation pour la deséléctionner"
 
 [node name="RichTextLabel5" type="RichTextLabel" parent="."]
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.00625
-anchor_top = 0.1425
-anchor_right = 0.00625
-anchor_bottom = 0.1425
-offset_left = 249.237
-offset_top = -2.13248
-offset_right = 427.237
-offset_bottom = 99.8675
+offset_left = 239.0
+offset_top = 61.0
+offset_right = 528.0
+offset_bottom = 181.0
 theme = ExtResource("3_2tfq1")
 bbcode_enabled = true
-text = "[i]Vous pouvez bouger et tourner un objet en le saisissant avec le pointeur et bougant/tournant la manette."
-
-[node name="Label15" type="Label" parent="."]
-clip_contents = true
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.0560748
-anchor_bottom = 0.0560748
-offset_left = 12.0
-offset_top = 336.944
-offset_right = 229.0
-offset_bottom = 359.944
-text = "changer parent annotation: "
-
-[node name="Label19" type="Label" parent="."]
-clip_contents = true
-layout_mode = 1
-offset_left = 233.0
-offset_top = 363.0
-offset_right = 243.0
-offset_bottom = 386.0
-text = "2"
+text = "[i]Vous pouvez bouger et tourner un objet en le saisissant avec le pointeur et bougant/tournant la manette. vous pouvez aussi utiliser le stick pour faire tourner et éloigner/rapprocher l'objet saisie."
