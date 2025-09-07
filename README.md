@@ -74,7 +74,7 @@ Il permet de manipuler des objets 3D sur le plateau Tilt Five, d’ajouter des a
 
 ## ⚠️ Remarques
 
-- Certains modèles `.tscn` peuvent présenter des bugs de collision ce chargement est principalement pour du debug ou des test, vous devez definir la boite de collisions vous mem dans godot.
+- Certains modèles `.tscn` peuvent présenter des bugs de collisions, ce chargement est principalement pour du debug ou des tests, vous devez définir la boite de collisions vous même dans godot.
 - Le menu HUD affiche les commandes disponibles et les actions possibles.
 - Les signaux globaux (`glasses_connected`, `new_comment`, `comment_delete`) facilitent la communication entre les différents scripts ``Player_control.gd`` et ``SceneT5.gd``.
 
