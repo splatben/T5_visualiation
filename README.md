@@ -4,7 +4,7 @@
 ![Tilt Five](https://img.shields.io/badge/Tilt%20Five-AR-yellow?logo=tilt-five)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
   
-Cette aplication a été réaliser dans le context du projet [Digitalis](https://digitalis.humanities.science/) et d'un stage de 8 semaine au [Centre Image de l'URCA](https://centreimage.univ-reims.fr/).Ayant pour but d'etre une demonstration de ce qui est réalisable pour de la visualisation d'objet 3D avec des lunette de réalité augmenter [TiltFive](https://www.tiltfive.com/).
+Cette aplication a été réaliser dans le contexte du projet [Digitalis](https://digitalis.humanities.science/) et d'un stage de 8 semaine au [Centre Image de l'URCA](https://centreimage.univ-reims.fr/).L'application à pour bût d'être une démonstration de ce qui est réalisable pour de la visualisation d'objet 3D avec les lunettes de réalité augmenté [TiltFive](https://www.tiltfive.com/).
 
 ## 👤 Auteur
 
