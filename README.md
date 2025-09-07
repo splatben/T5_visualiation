@@ -1,6 +1,6 @@
 # 🎲 Tilt Five Godot Demo
 
-![Godot](https://img.shields.io/badge/Godot-4.x-blue?logo=godot-engine)
+![Godot](https://img.shields.io/badge/Godot-4.4-blue?logo=godot-engine)
 ![Tilt Five](https://img.shields.io/badge/Tilt%20Five-AR-yellow?logo=tilt-five)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
   
