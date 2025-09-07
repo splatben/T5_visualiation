@@ -1,14 +1,14 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
 #fichier volumineux 
 *.obj*
-*.glb*
 *.mtl*
 *.gltf*
+*.ply*
+*.import*
+*.dat*
+
 #repertoire spécifique
-Champignon/
-jovin/
-nuagePoint/
-fox/
-ply/
+*ply/
