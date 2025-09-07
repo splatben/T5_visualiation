@@ -87,5 +87,3 @@ Voir le fichier `LICENSE` pour plus d’informations.
 
 Les contributions, issues et suggestions sont les bienvenues !  
 N’hésitez pas à ouvrir une issue ou une pull request.
-
-*Made with ❤️ using [Godot Engine](https://godotengine.org/) & [Tilt Five](https://www.tiltfive.com/)*
