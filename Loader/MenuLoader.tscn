@@ -9,11 +9,11 @@
 [ext_resource type="Script" uid="uid://ivw3thn8bdqt" path="res://Loader/Saver.gd" id="4_pf47n"]
 [ext_resource type="Script" uid="uid://cepp2jjto8jlr" path="res://Loader/print_error.gd" id="4_vghfb"]
 
-[node name="Window_Menu" type="Window"]
+[node name="MenuLoader" type="Window"]
 auto_translate_mode = 1
 title = "Menu"
 initial_position = 1
-size = Vector2i(600, 400)
+size = Vector2i(600, 300)
 script = ExtResource("1_26lhy")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="."]
@@ -22,6 +22,7 @@ y_sort_enabled = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_bottom = -1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("1_isicr")
@@ -90,7 +91,7 @@ popup_window = true
 ok_button_text = "Open"
 file_mode = 0
 access = 2
-filters = PackedStringArray("*.gltf", "*.glb", "*.tscn", "*.xyz", "*.dat", "*.ply")
+filters = PackedStringArray("*.gltf", "*.glb", "*.tscn", "*.xyz", "*.dat", "*.ply", "*.ttl")
 show_hidden_files = true
 use_native_dialog = true
 script = ExtResource("2_hfu3d")
@@ -151,7 +152,6 @@ offset_top = 271.0
 offset_right = 582.0
 offset_bottom = 346.0
 bbcode_enabled = true
-text = "Pour pouvoir sauvegarder ou charger les fichiers .dat sans problème. Il est recommandé que le .dat est le même nom que le ou les fichiers objet auxquels il est lié. Si il y a plusieur objet mettre -0, -1, -2 à la fin du nom "
 fit_content = true
 
 [connection signal="pressed" from="Button" to="Button" method="_on_button_pressed"]

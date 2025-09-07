@@ -20,4 +20,3 @@ func _disable_plugin():
 	if _initialized:
 		#remove_custom_type("T5Manager")
 		remove_autoload_singleton("T5Interface")
-

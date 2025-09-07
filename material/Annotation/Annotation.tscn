@@ -7,35 +7,37 @@
 [ext_resource type="PackedScene" uid="uid://bm1ags6dq1sv2" path="res://material/Annotation/texte.tscn" id="5_bbbxp"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4k2ue"]
-size = Vector3(0.121769, 0.652199, 1.98935)
+size = Vector3(0.469259, 0.208784, 0.0287252)
 
 [node name="annotation" type="Node3D" groups=["Annotation"]]
-transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 script = ExtResource("1_tw16d")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="StaticBody3D" type="StaticBody3D" parent="." groups=["Annotation"]]
 rotation_edit_mode = 1
 collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
-transform = Transform3D(0.999968, 0, 0.00795862, 0, 1, 0, -0.00795862, 0, 0.999968, -0.0113496, 0.75742, 1.32907)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.999999, 0.238027, 0.109964, 0)
 shape = SubResource("BoxShape3D_4k2ue")
 
-[node name="pointeur_bulle" parent="StaticBody3D" instance=ExtResource("2_kmk67")]
-transform = Transform3D(-2.62268e-08, -0.2, 0, -2.62268e-08, 3.82137e-16, -0.600001, 0.6, -8.74228e-09, -2.62269e-08, 0.0137701, 0.590697, 0.133987)
+[node name="Node3D" type="Node3D" parent="StaticBody3D"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.243807, 0.11089, 0)
 
-[node name="bulle_dialog" parent="StaticBody3D" instance=ExtResource("3_htdbl")]
-transform = Transform3D(0.2, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -0.0164042, 0.719785, 1.03527)
+[node name="pointeur_bulle" parent="StaticBody3D/Node3D" instance=ExtResource("2_kmk67")]
+transform = Transform3D(0.6, 0, 0, 0, -8.74227e-09, -0.600001, 0, 0.2, -2.62269e-08, -1.037, 0.044, -0.0218727)
 
-[node name="Viewport2Din3D" parent="StaticBody3D" instance=ExtResource("4_8tqye")]
-transform = Transform3D(-4.37114e-08, -0.00174533, 0.999999, 0, 0.999998, 0.00174533, -1, 7.62907e-11, -4.37113e-08, 0.0216805, 0.752157, 1.29212)
+[node name="bulle_dialog" parent="StaticBody3D/Node3D" instance=ExtResource("3_htdbl")]
+transform = Transform3D(-8.74228e-09, 0, 0.5, 0, 0.5, 0, -0.2, 0, -2.18557e-08, -0.129514, 0.15, -2.42967e-10)
+
+[node name="Viewport2Din3D" parent="StaticBody3D/Node3D" instance=ExtResource("4_8tqye")]
+transform = Transform3D(-1, 0, 8.74227e-08, 0, 1, 0, -8.74227e-08, 0, -1, 0.121427, 0.194946, -0.0542473)
 screen_size = Vector2(1.7, 0.45)
 collision_layer = 0
 scene = ExtResource("5_bbbxp")
 viewport_size = Vector2(600, 200)
 
-[node name="Viewport2Din3D2" parent="StaticBody3D" instance=ExtResource("4_8tqye")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -0.0412729, 0.749903, 1.29457)
+[node name="Viewport2Din3D2" parent="StaticBody3D/Node3D" instance=ExtResource("4_8tqye")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.157434, 0.193407, 0.0309578)
 screen_size = Vector2(1.7, 0.45)
 collision_layer = 0
 scene = ExtResource("5_bbbxp")

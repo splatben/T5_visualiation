@@ -7,9 +7,11 @@ signal load_ann(ann:Node3D)
 var _annotation = preload("res://material/Annotation/Annotation.tscn")
 var _thread:Thread
 
+#appeler la première fois que le noeuds rentre dans l'arbr 
 func _ready():
 	self.file_selected.connect(_on_file_selected)
 
+#apele les fonction de chargement en multi_threading pour eviter les freezes
 func _on_file_selected(file:String):
 	if(_thread):
 		if(_thread.is_alive()):
@@ -33,11 +35,12 @@ func _on_file_selected(file:String):
 		load_failed.emit("mauvaise extension")
 	hide()
 
+#charge un .tscn
 func _load(file:String):
-	var nodePacked = load(file) #charger une scène qui n'est pas deja dans la scène 
+	var nodePacked = load(file) 
 	if nodePacked == null:
 		load_failed.emit.call_deferred("no scene")
-		return ERR_FILE_NOT_FOUND;
+		return;
 	var node = nodePacked.instantiate()
 	add_static_body(node)
 	is_loaded.emit.call_deferred(node)
@@ -71,26 +74,30 @@ func _load_gltf(file:String,quiet : bool):
 				is_loaded.emit.call_deferred(gltf)
 			return gltf
 	else:
-		if !quiet:
-			load_failed.emit.call_deferred("Ereur au chargement :"+str(err))
-		return err
+		load_failed.emit.call_deferred("Ereur au chargement :"+str(err))
+		return ;
 
+#l'encapsulation consiste a save le chemin du fichier ajouter les colisions et un noms correspondant au nom de fichier le noeuds
+func create_encapsulation(mesh_instance:MeshInstance3D,filePath:String):
+	add_static_body(mesh_instance)
+	mesh_instance.get_owner().set_meta("file",filePath)
+	mesh_instance.get_owner().name = filePath.get_slice("/",filePath.get_slice_count("/")-1).get_slice(".",0)
+	return mesh_instance.get_owner();
+	
 func _load_xyz(filePath:String, quiet:bool):
 	var points = PackedVector3Array()
 	var file = FileAccess.open(filePath, FileAccess.READ)
 	var ligne : String = file.get_line()
 	if(ligne == ""):
-		if !quiet:
-			load_failed.emit.call_deferred("Ereur au chargement :"+str(file.get_error()))
-		return file.get_error();
+		load_failed.emit.call_deferred("Ereur au chargement :"+str(file.get_error()))
+		return ;
 	while ligne != "":
 		if ligne[0] != "#" :
 			var pos = Vector3(0,0,0)
 			var array = ligne.split(" ",false)
 			if(len(array) != 3):
-				if !quiet:
-					load_failed.emit.call_deferred("ERR_FILE_CORRUPT")
-				return ERR_FILE_CORRUPT
+				load_failed.emit.call_deferred("ERR_FILE_CORRUPT")
+				return ;
 			pos.x = array[0].to_float()
 			pos.y = array[1].to_float()
 			pos.z = array[2].to_float()
@@ -98,166 +105,40 @@ func _load_xyz(filePath:String, quiet:bool):
 		ligne = file.get_line()
 	file.close()
 	# Create the ArrayMesh.
-	var arr_mesh = ArrayMesh.new()
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = points
-	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_POINTS, arrays)
-	
-	#Material for array mesh (1 surface)
-	var mat = ORMMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.use_point_size = true
-	mat.point_size = 3
-	mat.albedo_color = Color(0,0,0.5)# couleur normalizer
-	mat.set_flag(BaseMaterial3D.FLAG_ALBEDO_FROM_VERTEX_COLOR,true)
-	arr_mesh.surface_set_material(0,mat)
 	
 	var mesh_instance = MeshInstance3D.new()
-	mesh_instance.mesh = arr_mesh
-	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	
+	var plyReader = PlyReader.new()
+	mesh_instance.mesh = plyReader.create_mesh(arrays,true)
 	#fini
-	add_static_body(mesh_instance)
-	mesh_instance.get_owner().set_meta("file",filePath)
-	mesh_instance.get_owner().name = filePath.get_slice("/",filePath.get_slice_count("/")-1).get_slice(".",0)
+	var owner_mesh = create_encapsulation(mesh_instance,filePath)
 	if !quiet:
-		is_loaded.emit.call_deferred(mesh_instance.get_owner())
-	return mesh_instance.get_owner();
+		is_loaded.emit.call_deferred(owner_mesh)
+	return owner_mesh;
 
 func _load_ply(filePath:String, quiet:bool):
-	var file = FileAccess.open(filePath, FileAccess.READ)
-	if file == null:
-		if !quiet:
-			load_failed.emit.call_deferred("Erreur au chargement :"+str(file.get_error()))
-		return file.get_error();
-	
-	var line = file.get_line()
-	# Vérification du header PLY
-	if line.strip_edges() != "ply":
-		if !quiet:
-			load_failed.emit.call_deferred(str("Ce fichier n’est pas un fichier PLY valide."))
-		return ERR_FILE_CORRUPT
-	
-	# Vérification que le format est ASCII
-	line = file.get_line()
-	if not line.strip_edges().begins_with("format ascii"):
-		if !quiet:
-			load_failed.emit.call_deferred("Seuls les fichiers PLY ASCII sont supportés.")
-		return ERR_FILE_CORRUPT
-	
-	line = file.get_line()
-	# Lecture de l'en-tête pour extraire le nombre de sommets et de faces
-	var vertex_count = 0
-	var face_count = 0
-	while line != "end_header":
-		if line.begins_with("element vertex"):
-			vertex_count = int(line.get_slice(" ",2))
-		elif line.begins_with("element face"):
-			face_count = int(line.get_slice(" ",2))
-		line = file.get_line()
-	if vertex_count == 0:
-		if !quiet:
-			load_failed.emit.call_deferred("ERR_FILE_CORRUPT")
-		return ERR_FILE_CORRUPT
-	
-	# Lecture des sommets et des couleurs.
-	# Chaque vertex doit contenir 6 valeurs : x, y, z, red, green, blue.
-	var vertices = PackedVector3Array()
-	var colors = PackedColorArray()
-	for i in range(vertex_count):
-		line = file.get_line()
-		line = line.split(" ")
-		if line.size() < 6:
-			return ERR_FILE_CORRUPT
-		var x = float(line[0])
-		var y = float(line[1])
-		var z = float(line[2])
-		vertices.append(Vector3(x, y, z))
-		# Conversion des couleurs de 0–255 vers 0.0–1.0
-		var r = float(line[3]) / 255.0
-		var g = float(line[4]) / 255.0
-		var b = float(line[5]) / 255.0
-		colors.append(Color(r, g, b))
-	
-	# Lecture des faces.
-	# Chaque face commence par le nombre de sommets suivi des indices des sommets.
-	var faces = []
-	for i in range(face_count):
-		line = file.get_line()
-		line = line.split(" ")
-		if line.size() < 4:
-			if !quiet:
-				load_failed.emit.call_deferred("ERR_FILE_CORRUPT")
-			return ERR_FILE_CORRUPT
-		# La première valeur indique le nombre de sommets dans la face
-		var n = int(line[0])
-		var face_indices = []
-		for j in range(n):
-			face_indices.append(int(line[j + 1]))
-		faces.append(face_indices)
-	file.close()
-	var indices = PackedInt32Array()
-	for face in faces:
-		if face.size() == 3:#cree un triangle
-			indices.append_array(face)
-			indices.append_array([face[2],face[1],face[1]])
-		elif face.size() > 3:#cree plusieur triangle avec pour "centre" le point 0 si plus de 3 point
-			for j in range(1, face.size() - 1):
-				indices.append(face[0])
-				indices.append(face[j])
-				indices.append(face[j + 1])
-				indices.append(face[j + 1])
-				indices.append(face[j])
-				indices.append(face[0])
-	# Préparation des tableaux pour ArrayMesh
-	var arrays = []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_COLOR] = colors
-	arrays[Mesh.ARRAY_INDEX] = indices
-	# Création d'un ArrayMesh et ajout d'une surface avec les tableaux préparés
-	var mesh = ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		#var surftool = SurfaceTool.new() #couleur non fonctionnel
-		#surftool.begin(Mesh.PRIMITIVE_TRIANGLES)
-		#for i in range(vertices.size()):
-		#	surftool.add_vertex(vertices[i])
-		#	surftool.set_color(colors[i])
-		#for i in indices:
-		#	surftool.add_index(i)
-		#surftool.generate_normals()
-		#var mesh = surftool.commit()
-	#Material for array mesh (1 surface)
-	var mat = ORMMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.set_flag(BaseMaterial3D.FLAG_ALBEDO_FROM_VERTEX_COLOR,true)
-	mesh.surface_set_material(0,mat)
-	
 	var mesh_instance = MeshInstance3D.new()
-	mesh_instance.mesh = mesh
-	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	
-	#fini
-	add_static_body(mesh_instance)
-	mesh_instance.get_owner().set_meta("file",filePath)
-	mesh_instance.get_owner().name = filePath.get_slice("/",filePath.get_slice_count("/")-1).get_slice(".",0)
+	var plyReader = PlyReader.new()
+	mesh_instance.mesh = plyReader.load_ply(filePath)
+	var owner_mesh = create_encapsulation(mesh_instance,filePath)
 	if !quiet:
-		is_loaded.emit.call_deferred(mesh_instance.get_owner())
-	return mesh_instance.get_owner();
+		is_loaded.emit.call_deferred(owner_mesh)
+	return owner_mesh
 
 func _load_data(filePath:String):
-	var file = FileAccess.open(filePath, FileAccess.READ)
-	var com = file.get_var()
+	var json = FileAccess.get_file_as_string(filePath)
+	var com = JSON.parse_string(json)
 	var n = 0;
 	for data_node in com:
 		var node = null
 		var ext = data_node["file"].get_extension()
 		if(!FileAccess.file_exists(data_node["file"])):
-			data_node["file"] = filePath.get_slice(".", 0).get_slice("-",0)+"."+ext
+			data_node["file"] = filePath.get_base_dir()+"/"+data_node["file"].get_file()
 			if(!FileAccess.file_exists(data_node["file"])):
-				var slice = data_node["file"].split(".")
-				data_node['file'] = slice[0]+"-"+str(n)+"."+slice[1]
+				load_failed.emit.call_deferred("fichier indiquer non trouver")
+				return;
 		n=n+1
 		if(ext == "glb" or ext == "gltf"):
 			node = _load_gltf(data_node["file"],true)
@@ -265,8 +146,10 @@ func _load_data(filePath:String):
 			node = _load_xyz(data_node["file"],true)
 		elif(ext == "ply"):
 			node = _load_ply(data_node["file"],true)
+		else :
+			load_failed.emit.call_deferred("bad extension")
+			return;
 		if(node == null):
-			load_failed.emit.call_deferred("no object file")
 			return;
 		var body = node.get_child(0)
 		body.set_position(Vector3(data_node["position"].x,data_node["position"].y,data_node["position"].z))
@@ -284,23 +167,16 @@ func _load_data(filePath:String):
 			load_ann.emit.call_deferred(ann)
 		is_loaded.emit.call_deferred(node)
 
-func get_center(arr_mesh : Mesh) -> Vector3 : 
+static func get_center(arr_mesh : Mesh) -> Vector3 : 
 	return arr_mesh.get_aabb().get_center() #centre de la boundingBox (AABB)
 
-#func update_mesh_origin(coord : Vector3, arr_mesh:Mesh) -> void : 
-#	for surf in arr_mesh.get_surface_count():
-#		var points = arr_mesh.surface_get_arrays(surf)[0]
-#		for i in range(len(points)):
-#			points[i] = points[i]+coord
-#		arr_mesh.surface_update_vertex_region(surf,0,points.to_byte_array())
-
-func update_shape_origin(coord : Vector3, shape : ConvexPolygonShape3D) ->  void: 
+static func update_shape_origin(coord : Vector3, shape : ConvexPolygonShape3D) ->  void: 
 	var points = shape.get_points()
 	for i in range(len(points)):
 		points[i] = points[i]+coord
 	shape.set_points(points)
 
-func add_static_body(node):
+static func add_static_body(node):
 	if node != null:
 		if node is MeshInstance3D:
 			node.position = Vector3(0,0,0)
@@ -332,6 +208,7 @@ func add_static_body(node):
 			body.collision_mask = 0
 			node.owner = parent
 			body.owner = parent
+			body.top_level = false
 			return ;
 			
 		# Continuer l'itération seulement si pas de mesh instance 3D
